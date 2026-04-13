@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { LoadDemoEntriesButton } from "@/components/demo/load-demo-entries-button";
 import { EntryFiltersPanel } from "@/components/entries/entry-filters-panel";
 import { EntryMetadataStrip } from "@/components/entries/entry-metadata-strip";
 import { ProofStrengthBadge } from "@/components/entries/proof-strength-badge";
@@ -132,6 +133,10 @@ export function GeneratorPage() {
     null,
   );
   const [copyStatus, setCopyStatus] = useState<"success" | "error" | null>(null);
+  const [outputFocusIntent, setOutputFocusIntent] = useState<"cursor" | "selectAll" | null>(
+    null,
+  );
+  const outputRef = useRef<HTMLTextAreaElement>(null);
 
   const filterOptions = useMemo(
     () => (entries ? buildEntryFilterOptions(entries) : null),
@@ -165,6 +170,34 @@ export function GeneratorPage() {
     selectedEntries.length > 0 &&
     (outputType !== "promotionCase" || targetLevel.trim().length > 0);
   const canRegenerate = Boolean(draft) && !isDraftStale && selectedEntries.length > 0;
+
+  useEffect(() => {
+    if (!draft || !outputFocusIntent) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      const output = outputRef.current;
+
+      if (!output) {
+        return;
+      }
+
+      output.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
+      output.focus();
+
+      if (outputFocusIntent === "selectAll") {
+        output.select();
+      } else {
+        const length = output.value.length;
+        output.setSelectionRange(length, length);
+      }
+
+      setOutputFocusIntent(null);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [draft, outputFocusIntent]);
 
   function toggleSelection(entryId: string) {
     setCopyStatus(null);
@@ -204,6 +237,7 @@ export function GeneratorPage() {
     setLastGeneratedBaseSignature(baseSignature);
     setLastGeneratedVariantIndex(variantIndex);
     setCopyStatus(null);
+    setOutputFocusIntent("cursor");
   }
 
   async function handleCopy() {
@@ -216,7 +250,17 @@ export function GeneratorPage() {
       setCopyStatus("success");
     } catch {
       setCopyStatus("error");
+      setOutputFocusIntent("selectAll");
     }
+  }
+
+  function handleSelectAll() {
+    if (!draft) {
+      return;
+    }
+
+    setCopyStatus(null);
+    setOutputFocusIntent("selectAll");
   }
 
   if (!entries || !filterOptions || !filteredEntries) {
@@ -277,15 +321,19 @@ export function GeneratorPage() {
         <EmptyState
           eyebrow="Draft generation"
           title="No entries available to generate from"
-          description="Capture at least one accomplishment before opening the generator. Output quality improves when the entry includes situation, result, metrics, and concrete proof."
+          description="Capture at least one accomplishment before opening the generator. Draft quality improves when the entry includes a clear result, a metric, and saved proof."
           supportingPoints={[
             "A metric, screenshot, quote, or artifact makes generated drafts feel more credible.",
             "Structured proof is what lets the same entry become a self-review paragraph, resume bullet, or STAR story.",
           ]}
-          ctaHref="/entries/new"
-          ctaLabel="Capture your first entry"
-          secondaryCtaHref="/settings"
-          secondaryCtaLabel="Load sample entries"
+          actions={
+            <>
+              <Link href="/entries/new" className={buttonStyles()}>
+                Capture your first entry
+              </Link>
+              <LoadDemoEntriesButton />
+            </>
+          }
         />
       </div>
     );
@@ -315,7 +363,8 @@ export function GeneratorPage() {
                 <div className="space-y-2">
                   <CardTitle>Select entries</CardTitle>
                   <CardDescription>
-                    Choose the evidence packets that should feed the current draft.
+                    Choose the evidence packets that should feed the current draft. One to three
+                    tightly related entries usually reads best.
                   </CardDescription>
                 </div>
                 <Badge variant="subtle">
@@ -502,6 +551,13 @@ export function GeneratorPage() {
                     ? "No entries selected yet."
                     : `${selectedEntries.length} entries will feed the current draft.`}
                 </p>
+                <p className="mt-1">The strongest drafts usually come from one to three related entries.</p>
+                {selectedEntries.length > 3 ? (
+                  <p className="mt-1 text-warning">
+                    Larger selections can make the output repetitive or noisy. Tighten the list if
+                    the draft starts to blur together.
+                  </p>
+                ) : null}
                 {outputType === "promotionCase" && targetLevel.trim().length === 0 ? (
                   <p className="mt-1">Add a target level before generating a promotion case.</p>
                 ) : null}
@@ -520,6 +576,9 @@ export function GeneratorPage() {
                 >
                   Regenerate
                 </Button>
+                <Button variant="ghost" disabled={!draft} onClick={handleSelectAll}>
+                  Select all
+                </Button>
                 <Button variant="ghost" disabled={!draft} onClick={handleCopy}>
                   Copy
                 </Button>
@@ -536,7 +595,8 @@ export function GeneratorPage() {
               ) : null}
               {copyStatus === "error" ? (
                 <p className="text-sm text-danger">
-                  Clipboard access failed. Select the text manually and copy it from the editor.
+                  Clipboard access failed. The editor is selected; press Cmd+C or Ctrl+C to copy
+                  it manually.
                 </p>
               ) : null}
             </CardContent>
@@ -552,9 +612,11 @@ export function GeneratorPage() {
             <CardContent className="space-y-4">
               {draft ? (
                 <Textarea
+                  ref={outputRef}
                   aria-label="Editable output"
                   value={draft}
-                  className="min-h-[34rem] font-mono text-[13px] leading-6"
+                  spellCheck={false}
+                  className="min-h-[32rem] font-mono text-[13px] leading-6 sm:min-h-[34rem]"
                   onChange={(event) => {
                     setCopyStatus(null);
                     setDraft(event.target.value);

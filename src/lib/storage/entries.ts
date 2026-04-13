@@ -9,7 +9,7 @@ import {
   type LocalImage,
   type ProofItem,
 } from "@/lib/schemas/entry";
-import { createDemoEntries } from "@/lib/storage/demo-data";
+import { createDemoEntries } from "@/lib/demo-entries";
 import {
   buildDashboardStats,
   type DashboardStats,

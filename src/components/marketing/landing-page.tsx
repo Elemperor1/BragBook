@@ -2,13 +2,13 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { generateOutput } from "@/lib/generator";
-import { sampleEntries } from "@/lib/sample-entries";
+import { demoEntries } from "@/lib/demo-entries";
 
 const heroPoints = [
   "Capture wins in under 2 minutes",
   "Attach metrics, praise, screenshots, and evidence",
   "Generate polished career documents",
-  "Keep everything private and local-first",
+  "Keep everything stored only in this browser",
 ] as const;
 
 const featureHighlights = [
@@ -48,7 +48,7 @@ const trustPoints = [
 ] as const;
 
 function buildExampleOutputs() {
-  const highlightEntries = sampleEntries.slice(0, 2);
+  const highlightEntries = demoEntries.slice(0, 2);
 
   return [
     {
@@ -73,7 +73,7 @@ function buildExampleOutputs() {
       label: "STAR story",
       eyebrow: "Interview prep",
       content: generateOutput({
-        entries: [sampleEntries[1]],
+        entries: [demoEntries[2]],
         outputType: "starStories",
         tone: "technical",
       }),
@@ -133,7 +133,7 @@ export function LandingPage() {
           <div className="grid gap-10 lg:grid-cols-[1.04fr_0.96fr] lg:items-center">
             <div className="space-y-7">
               <Badge className="rounded-full px-4 py-2 font-mono text-[11px] uppercase tracking-[0.28em]">
-                Local-first career evidence vault
+                Browser-local career evidence vault
               </Badge>
               <div className="space-y-5">
                 <h1 className="max-w-3xl text-[clamp(3rem,7vw,5.5rem)] font-semibold leading-[0.94] tracking-[-0.05em] text-foreground">
@@ -364,7 +364,7 @@ export function LandingPage() {
               The output should look like real career material, not generic filler.
             </h2>
             <p className="text-base leading-7 text-muted-foreground sm:text-lg">
-              These previews are generated from structured sample entries that mirror the real app
+              These previews are generated from structured demo entries that mirror the real app
               workflow and document shapes.
             </p>
           </div>
@@ -391,12 +391,12 @@ export function LandingPage() {
                   Privacy and trust
                 </p>
                 <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-                  Keep your proof private and local-first.
+                  Keep your proof stored only in this browser.
                 </h2>
                 <p className="max-w-2xl text-base leading-7 text-muted-foreground">
                   BragBook is designed to feel safe enough for raw notes, early evidence, and
-                  sensitive praise. The default posture is local storage, clear warnings, and a
-                  plain backup story.
+                  sensitive praise. The default posture is browser-local storage, clear warnings,
+                  and a plain backup story.
                 </p>
               </div>
 
@@ -411,8 +411,8 @@ export function LandingPage() {
                 ))}
                 <div className="rounded-[1.5rem] border border-warning/25 bg-warning/10 px-4 py-4">
                   <p className="text-sm leading-6 text-foreground">
-                    Local-only also means clearing browser storage, switching browsers, or using a
-                    fresh device can remove the vault unless you export a backup.
+                  Local-only also means clearing browser storage, switching browsers, or using a
+                    fresh device can remove the data unless you export a backup.
                   </p>
                 </div>
               </div>
@@ -442,7 +442,7 @@ export function LandingPage() {
                   Start in the app
                 </Link>
                 <Link href="/settings" className={marketingButtonStyles("secondary")}>
-                  Review local backup controls
+                  Review backup controls
                 </Link>
               </div>
             </CardContent>

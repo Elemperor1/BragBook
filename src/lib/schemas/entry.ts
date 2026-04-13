@@ -29,13 +29,6 @@ export const proofItemTypeLabels: Record<ProofItemType, string> = {
   beforeAfterSummary: "Before/after summary",
 };
 
-export const proofStrengthLabels: Record<ProofStrength, string> = {
-  weak: "Weak proof",
-  medium: "Medium proof",
-  strong: "Strong proof",
-  strongest: "Strongest proof",
-};
-
 const optionalString = z.preprocess(
   (value) => {
     if (typeof value !== "string") {

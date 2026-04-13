@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { buttonStyles } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,7 @@ export function EmptyState({
   ctaLabel,
   secondaryCtaHref,
   secondaryCtaLabel,
+  actions,
 }: {
   eyebrow?: string;
   title: string;
@@ -22,6 +24,7 @@ export function EmptyState({
   ctaLabel?: string;
   secondaryCtaHref?: string;
   secondaryCtaLabel?: string;
+  actions?: ReactNode;
 }) {
   return (
     <Card className="rounded-[2rem] border-dashed border-border-strong/70 bg-white/55">
@@ -47,7 +50,11 @@ export function EmptyState({
         ) : null}
         {note ? <p className="text-sm leading-6 text-muted-foreground">{note}</p> : null}
       </CardHeader>
-      {((ctaHref && ctaLabel) || (secondaryCtaHref && secondaryCtaLabel)) ? (
+      {actions ? (
+        <CardContent>
+          <div className="flex flex-wrap gap-3">{actions}</div>
+        </CardContent>
+      ) : (ctaHref && ctaLabel) || (secondaryCtaHref && secondaryCtaLabel) ? (
         <CardContent>
           <div className="flex flex-wrap gap-3">
             {ctaHref && ctaLabel ? (

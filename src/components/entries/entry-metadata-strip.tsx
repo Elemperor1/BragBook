@@ -14,7 +14,7 @@ export function EntryMetadataStrip({ entry }: { entry: AccomplishmentEntry }) {
           {entry.proofItems.length} proof {entry.proofItems.length === 1 ? "item" : "items"}
         </Badge>
       ) : null}
-      <span className="ml-auto text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+      <span className="basis-full text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground sm:ml-auto sm:basis-auto">
         Updated {formatRelativeTime(entry.updatedAt)}
       </span>
     </div>

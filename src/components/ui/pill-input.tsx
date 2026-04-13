@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils/cn";
@@ -11,14 +11,18 @@ export function PillInput({
   values,
   onChange,
   placeholder,
+  inputId,
 }: {
   label: string;
   hint?: string;
   values: string[];
   onChange: (values: string[]) => void;
   placeholder: string;
+  inputId?: string;
 }) {
   const [draft, setDraft] = useState("");
+  const generatedId = useId();
+  const resolvedInputId = inputId ?? generatedId;
 
   function commitValue(rawValue: string) {
     const normalized = rawValue.trim();
@@ -35,7 +39,9 @@ export function PillInput({
   return (
     <div className="space-y-3">
       <div className="space-y-1">
-        <label className="text-sm font-medium text-foreground">{label}</label>
+        <label htmlFor={resolvedInputId} className="text-sm font-medium text-foreground">
+          {label}
+        </label>
         {hint ? <p className="text-xs leading-5 text-muted-foreground">{hint}</p> : null}
       </div>
       <div className="field-surface rounded-[1.5rem] px-3 py-3">
@@ -45,6 +51,7 @@ export function PillInput({
               <button
                 key={value}
                 type="button"
+                aria-label={`Remove ${value}`}
                 className={cn(
                   "inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-accent-soft/80",
                 )}
@@ -57,6 +64,7 @@ export function PillInput({
           </div>
         ) : null}
         <Input
+          id={resolvedInputId}
           value={draft}
           placeholder={placeholder}
           className="border-0 bg-transparent px-1 shadow-none ring-0 focus:ring-0"

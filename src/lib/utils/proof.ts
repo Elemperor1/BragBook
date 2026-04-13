@@ -3,23 +3,20 @@ import type {
   ProofItem,
   ProofStrength,
 } from "@/lib/schemas/entry";
-import {
-  proofStrengthLabels,
-  type ProofItemType,
-} from "@/lib/schemas/entry";
+import type { ProofItemType } from "@/lib/schemas/entry";
+import { proofStrengthLabels } from "@/lib/proof-strength";
 
 const artifactProofTypes = new Set<ProofItemType>([
   "screenshot",
   "artifactLink",
+  "releaseNote",
   "pastedPraise",
   "customerFeedback",
 ]);
 
 const narrativeProofTypes = new Set<ProofItemType>([
-  "releaseNote",
   "meetingNote",
   "beforeAfterSummary",
-  "metricSnapshot",
 ]);
 
 export const proofStrengthRank: Record<ProofStrength, number> = {
@@ -35,31 +32,34 @@ export function isProofItemPopulated(item: ProofItem) {
 
 export function getProofStrength(entry: Pick<AccomplishmentEntry, "metric" | "proofItems">) {
   const populatedItems = entry.proofItems.filter(isProofItemPopulated);
-
-  if (populatedItems.length === 0) {
-    return "weak";
-  }
+  const hasSavedProof = populatedItems.length > 0;
 
   const hasArtifactProof = populatedItems.some((item) =>
     artifactProofTypes.has(item.type),
   );
-  const hasNarrativeProof = populatedItems.some((item) =>
-    narrativeProofTypes.has(item.type),
-  );
-  const hasMetricEvidence = Boolean(entry.metric) || populatedItems.some(
-    (item) => item.type === "metricSnapshot" && Boolean(item.metric),
+  const hasMetricEvidence =
+    Boolean(entry.metric) ||
+    populatedItems.some((item) => item.type === "metricSnapshot" && Boolean(item.metric));
+  const hasNarrativeProof = populatedItems.some(
+    (item) =>
+      narrativeProofTypes.has(item.type) ||
+      (item.type === "metricSnapshot" && !item.metric),
   );
 
   if (hasMetricEvidence && hasArtifactProof) {
     return "strongest";
   }
 
-  if (hasArtifactProof) {
+  if (hasMetricEvidence || hasArtifactProof) {
     return "strong";
   }
 
   if (hasNarrativeProof) {
     return "medium";
+  }
+
+  if (!hasSavedProof) {
+    return "weak";
   }
 
   return "weak";

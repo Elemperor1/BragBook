@@ -26,7 +26,7 @@ export function NewEntryPage() {
       />
       <Card className="rounded-[2rem]">
         <CardHeader>
-          <CardTitle>Why structured proof matters</CardTitle>
+          <CardTitle>Capture the essentials first</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-3">
           <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4 text-sm leading-6 text-foreground">
@@ -36,7 +36,7 @@ export function NewEntryPage() {
             Results and metrics make the outcome reusable in reviews and resumes.
           </div>
           <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4 text-sm leading-6 text-foreground">
-            Proof items make the story easier to trust months later.
+            Saved proof makes the story easier to trust months later.
           </div>
         </CardContent>
       </Card>

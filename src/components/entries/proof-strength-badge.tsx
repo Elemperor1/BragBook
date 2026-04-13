@@ -1,14 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import type { AccomplishmentEntry, ProofStrength } from "@/lib/schemas/entry";
-import { proofStrengthLabels } from "@/lib/schemas/entry";
+import type { AccomplishmentEntry } from "@/lib/schemas/entry";
+import { proofStrengthMeta } from "@/lib/proof-strength";
 import { getProofStrength } from "@/lib/utils/proof";
-
-const strengthVariant: Record<ProofStrength, "default" | "subtle" | "success" | "warning"> = {
-  weak: "subtle",
-  medium: "warning",
-  strong: "success",
-  strongest: "default",
-};
 
 export function ProofStrengthBadge({
   entry,
@@ -16,10 +9,11 @@ export function ProofStrengthBadge({
   entry: Pick<AccomplishmentEntry, "metric" | "proofItems">;
 }) {
   const strength = getProofStrength(entry);
+  const meta = proofStrengthMeta[strength];
 
   return (
-    <Badge variant={strengthVariant[strength]}>
-      {proofStrengthLabels[strength]}
+    <Badge variant={meta.variant} title={meta.description}>
+      {meta.badgeLabel}
     </Badge>
   );
 }

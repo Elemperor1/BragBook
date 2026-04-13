@@ -1,14 +1,13 @@
 "use client";
 
 import type * as React from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import {
-  proofStrengthLabels,
-  proofStrengthOptions,
-} from "@/lib/schemas/entry";
+import { proofStrengthMeta } from "@/lib/proof-strength";
+import { proofStrengthOptions } from "@/lib/schemas/entry";
 import { cn } from "@/lib/utils/cn";
 import type {
   EntryFilterOptions,
@@ -32,6 +31,8 @@ export function EntryFiltersPanel({
   className?: string;
   queryPlaceholder?: string;
 }) {
+  const [showAllTags, setShowAllTags] = useState(false);
+
   function toggleTag(tag: string) {
     setFilters((current) => ({
       ...current,
@@ -40,6 +41,8 @@ export function EntryFiltersPanel({
         : [...current.tags, tag],
     }));
   }
+
+  const visibleTags = showAllTags ? filterOptions.tags : filterOptions.tags.slice(0, 8);
 
   return (
     <div className={cn("rounded-[2rem] border border-border bg-white/60 p-5", className)}>
@@ -133,22 +136,25 @@ export function EntryFiltersPanel({
               }))
             }
           >
-            <option value="all">All strengths</option>
-            {proofStrengthOptions.map((strength) => (
-              <option key={strength} value={strength}>
-                {proofStrengthLabels[strength]} ({filterOptions.proofStrengthCounts[strength]})
-              </option>
-            ))}
-          </Select>
+              <option value="all">All strengths</option>
+              {proofStrengthOptions.map((strength) => (
+                <option key={strength} value={strength}>
+                  {proofStrengthMeta[strength].filterLabel} ({filterOptions.proofStrengthCounts[strength]})
+                </option>
+              ))}
+            </Select>
+            <p className="text-xs leading-5 text-muted-foreground">
+              Strongest proof means a metric plus a concrete quote, artifact, or screenshot.
+            </p>
+          </div>
         </div>
-      </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <p className="text-sm font-medium text-foreground">Tags</p>
         {filterOptions.tags.length === 0 ? (
           <p className="text-sm text-muted-foreground">No tags yet.</p>
         ) : (
-          filterOptions.tags.map(({ tag, count }) => {
+          visibleTags.map(({ tag, count }) => {
             const active = filters.tags.includes(tag);
 
             return (
@@ -156,6 +162,7 @@ export function EntryFiltersPanel({
                 key={tag}
                 type="button"
                 className="rounded-full"
+                aria-pressed={active}
                 onClick={() => toggleTag(tag)}
               >
                 <Badge variant={active ? "default" : "subtle"}>
@@ -165,6 +172,15 @@ export function EntryFiltersPanel({
             );
           })
         )}
+        {filterOptions.tags.length > 8 ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAllTags((current) => !current)}
+          >
+            {showAllTags ? "Show fewer tags" : "Show all tags"}
+          </Button>
+        ) : null}
       </div>
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">

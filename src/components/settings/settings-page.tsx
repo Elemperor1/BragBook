@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { LoadDemoEntriesButton } from "@/components/demo/load-demo-entries-button";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import {
   restoreBackup,
   type BragBookBackupV1,
 } from "@/lib/storage/backup";
-import { clearAllData, seedDemoData } from "@/lib/storage/entries";
+import { clearAllData } from "@/lib/storage/entries";
 import { formatRelativeTime } from "@/lib/utils/date";
 
 type StatusMessage =
@@ -27,7 +28,6 @@ type StatusMessage =
 export function SettingsPage() {
   const summary = useStorageSummary();
   const [clearOpen, setClearOpen] = useState(false);
-  const [seedOpen, setSeedOpen] = useState(false);
   const [pendingImport, setPendingImport] = useState<BragBookBackupV1 | null>(null);
   const [pendingImportName, setPendingImportName] = useState<string | null>(null);
   const [isWorking, setIsWorking] = useState(false);
@@ -104,14 +104,14 @@ export function SettingsPage() {
     <div className="space-y-8">
       <PageHeader
         title="Settings"
-        description="Trustworthy local controls for backups, sample data, and a clear explanation of how this browser-local vault behaves."
+        description="Trustworthy browser-local controls for backups, demo entries, and a clear explanation of how storage works."
       />
 
       <section className="grid gap-4 xl:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>Entries</CardTitle>
-            <CardDescription>Total accomplishment records stored locally.</CardDescription>
+            <CardDescription>Total accomplishment records stored in this browser.</CardDescription>
           </CardHeader>
           <CardContent>
             {summary ? (
@@ -124,8 +124,8 @@ export function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Local images</CardTitle>
-            <CardDescription>Attached screenshots or visual artifacts in IndexedDB.</CardDescription>
+            <CardTitle>Stored images</CardTitle>
+            <CardDescription>Attached screenshots or visual artifacts stored in IndexedDB.</CardDescription>
           </CardHeader>
           <CardContent>
             {summary ? (
@@ -162,11 +162,11 @@ export function SettingsPage() {
               <div className="space-y-2">
                 <CardTitle>Local data and backups</CardTitle>
                 <CardDescription>
-                  Export a full JSON backup, restore from a prior backup, load sample entries, or
-                  reset the local vault on this device.
+                  Export a full JSON backup, restore from a prior backup, load demo entries, or
+                  clear the browser data on this device.
                 </CardDescription>
               </div>
-              <Badge variant="subtle">Local only</Badge>
+              <Badge variant="subtle">Browser-local</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -185,13 +185,20 @@ export function SettingsPage() {
               >
                 Import JSON backup
               </Button>
-              <Button
+              <LoadDemoEntriesButton
+                force
                 variant="ghost"
                 disabled={isWorking}
-                onClick={() => setSeedOpen(true)}
-              >
-                Load sample entries
-              </Button>
+                title="Replace this browser's data with demo entries?"
+                description="This replaces the current entries in this browser with a realistic BragBook demo dataset for a software engineer."
+                confirmLabel="Replace with demo entries"
+                onLoaded={() =>
+                  setStatus({
+                    kind: "success",
+                    message: "Demo entries replaced the current data in this browser.",
+                  })
+                }
+              />
               <Button
                 variant="ghost"
                 disabled={isWorking}
@@ -212,7 +219,7 @@ export function SettingsPage() {
               <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4">
                 <p className="text-sm font-medium text-foreground">Restore behavior</p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Import replaces the current local vault. It does not merge with existing data.
+                  Import replaces the current browser data. It does not merge with existing data.
                 </p>
               </div>
             </div>
@@ -243,51 +250,26 @@ export function SettingsPage() {
           <CardHeader>
             <CardTitle>How local storage works</CardTitle>
             <CardDescription>
-              This product pass stores data in IndexedDB in this browser. There is no account,
-              sync, billing, or backend fallback.
+              BragBook stores data in IndexedDB in this browser. There is no account, sync, billing,
+              or backend fallback.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-7 text-muted-foreground">
             <p>Your entries stay on this device and inside this browser profile by default.</p>
             <p>
               Clearing site data, reinstalling the browser, switching browsers, or using a fresh
-              device can remove the vault unless you exported a backup first.
+              device can remove the data unless you exported a backup first.
             </p>
             <p>
-              Sample entries are optional and meant for walkthroughs or demos. They can be loaded
-              now and removed later.
+              Demo entries are optional and meant for walkthroughs. They can be loaded now and
+              removed later.
             </p>
             <div className="rounded-[1.5rem] border border-warning/30 bg-warning/10 px-4 py-4 text-foreground">
-              Export a backup before demos, browser cleanup, or device changes if the stored proof
-              matters.
+              Export a backup before browser cleanup or device changes if the stored proof matters.
             </div>
           </CardContent>
         </Card>
       </section>
-
-      <Dialog
-        open={seedOpen}
-        onClose={() => setSeedOpen(false)}
-        title="Reseed demo data?"
-        description="This replaces the current local vault with a realistic BragBook demo dataset for a software engineer."
-        confirmLabel="Load demo entries"
-        isBusy={isWorking}
-        onConfirm={async () => {
-          setIsWorking(true);
-          setStatus(null);
-
-          try {
-            await seedDemoData(true);
-            setStatus({
-              kind: "success",
-              message: "Sample entries are loaded locally for this browser.",
-            });
-            setSeedOpen(false);
-          } finally {
-            setIsWorking(false);
-          }
-        }}
-      />
 
       <Dialog
         open={clearOpen}
@@ -319,8 +301,8 @@ export function SettingsPage() {
           setPendingImport(null);
           setPendingImportName(null);
         }}
-        title="Replace local vault from backup?"
-        description="Import restores the selected backup and replaces the current entries and local screenshot assets in this browser."
+        title="Replace browser data from backup?"
+        description="Import restores the selected backup and replaces the current entries and stored screenshot assets in this browser."
         confirmLabel="Import backup"
         isBusy={isWorking}
         onConfirm={async () => {

@@ -7,6 +7,7 @@ import { EntryForm } from "@/components/entries/entry-form";
 import { EntryMetadataStrip } from "@/components/entries/entry-metadata-strip";
 import { ProofImagePreview } from "@/components/entries/proof-image-preview";
 import { ProofStrengthBadge } from "@/components/entries/proof-strength-badge";
+import { ProofStrengthExplainer } from "@/components/entries/proof-strength-explainer";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonStyles } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEntry } from "@/hooks/use-entry";
+import { proofStrengthMeta } from "@/lib/proof-strength";
 import {
   proofItemTypeLabels,
   type AccomplishmentEntry,
@@ -160,11 +162,11 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
       <div className="space-y-8">
         <PageHeader
           title="Entry not found"
-          description="The item you were looking for may have been deleted from this local vault."
+          description="The item you were looking for may have been deleted from this browser."
         />
         <EmptyState
           title="No matching entry"
-          description="Return to your vault and create or open another accomplishment entry."
+          description="Return to your entries and create or open another accomplishment."
           ctaHref="/entries"
           ctaLabel="Back to entries"
         />
@@ -186,6 +188,7 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
   }
 
   const proofStrength = getProofStrength(entry);
+  const proofMeta = proofStrengthMeta[proofStrength];
 
   return (
     <div className="space-y-8">
@@ -227,15 +230,7 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
               <EntryMetadataStrip entry={entry} />
               <div className="flex flex-wrap items-center gap-3">
                 <ProofStrengthBadge entry={entry} />
-                <Badge variant="subtle">
-                  {proofStrength === "strongest"
-                    ? "Metric plus concrete proof"
-                    : proofStrength === "strong"
-                      ? "Concrete proof captured"
-                      : proofStrength === "medium"
-                        ? "Narrative proof only"
-                        : "Needs stronger evidence"}
-                </Badge>
+                <Badge variant="subtle">{proofMeta.description}</Badge>
               </div>
               <div className="flex flex-wrap gap-2">
                 {entry.tags.map((tag) => (
@@ -294,19 +289,7 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Proof posture</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm leading-7 text-muted-foreground">
-                  <p>
-                    Proof strength is derived from the saved evidence, not entered manually.
-                  </p>
-                  <p>
-                    Strongest entries combine a metric with a quote, screenshot, or artifact.
-                  </p>
-                </CardContent>
-              </Card>
+              <ProofStrengthExplainer title="Proof strength rubric" />
             </div>
           </section>
         </>

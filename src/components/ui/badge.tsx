@@ -1,3 +1,4 @@
+import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
 const variants = {
@@ -11,13 +12,14 @@ export function Badge({
   className,
   variant = "default",
   children,
-}: {
-  className?: string;
+  ...props
+}: HTMLAttributes<HTMLSpanElement> & {
   variant?: keyof typeof variants;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <span
+      {...props}
       className={cn(
         "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium tracking-wide",
         variants[variant],

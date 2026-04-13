@@ -85,12 +85,15 @@ function uniqueStrings(items: Array<string | null | undefined>) {
   );
 }
 
-function trimSentence(value: string | null | undefined) {
+function trimClause(value: string | null | undefined) {
   if (!value) {
     return null;
   }
 
-  return value.trim().replace(/\s+/g, " ");
+  const normalized = value.trim().replace(/\s+/g, " ");
+  return normalized
+    .replace(/([.!?]+)(["'])$/, "$2")
+    .replace(/[.!?]+$/, "");
 }
 
 function lowercaseFirst(value: string) {
@@ -102,13 +105,33 @@ function ensureSentence(value: string | null | undefined) {
     return null;
   }
 
-  const normalized = trimSentence(value);
+  const normalized = trimClause(value);
 
   if (!normalized) {
     return null;
   }
 
-  return /[.!?]$/.test(normalized) ? normalized : `${normalized}.`;
+  return `${normalized}.`;
+}
+
+function clauseToSentence(value: string | null | undefined) {
+  return ensureSentence(value) ?? "";
+}
+
+function lowerClause(value: string | null | undefined) {
+  const normalized = trimClause(value);
+  return normalized ? lowercaseFirst(normalized) : null;
+}
+
+function joinWithCommas(items: Array<string | null | undefined>) {
+  return uniqueStrings(items).join(", ");
+}
+
+function joinSentences(items: Array<string | null | undefined>) {
+  return items
+    .map((item) => ensureSentence(item))
+    .filter((item): item is string => Boolean(item))
+    .join(" ");
 }
 
 function toTitleCase(value: string) {
@@ -137,23 +160,23 @@ function formatList(items: string[]) {
 
 function describeProofItem(item: ProofItem) {
   if (item.metric) {
-    return ensureSentence(item.metric);
+    return trimClause(item.metric);
   }
 
   if (item.summary) {
-    return ensureSentence(item.summary);
+    return trimClause(item.summary);
   }
 
   if (item.title) {
-    return ensureSentence(item.title);
+    return trimClause(item.title);
   }
 
   if (item.link) {
-    return ensureSentence(item.link);
+    return trimClause(item.link);
   }
 
-  if (item.localImage) {
-    return "Screenshot evidence is attached.";
+  if (item.localImage && item.type === "screenshot") {
+    return "Screenshot evidence is attached";
   }
 
   return null;
@@ -173,12 +196,12 @@ function normalizeEntry(entry: AccomplishmentEntry): EntryFact {
     project: entry.project,
     heading: entry.project ? `${entry.title} (${entry.project})` : entry.title,
     timeline: formatDateRange(entry.startDate, entry.endDate),
-    situation: trimSentence(entry.situation),
-    action: trimSentence(entry.action),
-    result: trimSentence(entry.result),
+    situation: trimClause(entry.situation),
+    action: trimClause(entry.action),
+    result: trimClause(entry.result),
     metric:
-      trimSentence(entry.metric) ??
-      trimSentence(entry.proofItems.find((item) => item.metric)?.metric),
+      trimClause(entry.metric) ??
+      trimClause(entry.proofItems.find((item) => item.metric)?.metric),
     stakeholders: uniqueStrings(entry.stakeholders),
     tags: uniqueStrings(entry.tags),
     seniorityTags: uniqueStrings(entry.seniorityTags),
@@ -187,7 +210,7 @@ function normalizeEntry(entry: AccomplishmentEntry): EntryFact {
     proofSummary:
       proofSummary === "No supporting proof saved yet."
         ? null
-        : ensureSentence(proofSummary),
+        : trimClause(proofSummary),
     proofHighlights,
     referenceDate: entry.endDate ?? entry.startDate ?? entry.updatedAt,
     isOpenEnded: !entry.endDate,
@@ -307,34 +330,40 @@ function buildAccomplishmentLine(
   if (variantIndex % 2 === 0) {
     switch (tone) {
       case "concise":
-        return `- ${fact.heading}: ${outcome}`;
+        return `- ${fact.heading}: ${clauseToSentence(outcome)}`;
       case "confident":
-        return `- ${fact.heading}: ${fact.action ?? fact.title}. ${outcome}`;
+        return `- ${fact.heading}: ${joinSentences([fact.action ?? fact.title, outcome])}`;
       case "executive":
-        return `- ${fact.heading}: ${outcome} ${fact.stakeholders.length > 0 ? `This work aligned ${formatList(fact.stakeholders)}.` : ""}`.trim();
+        return `- ${fact.heading}: ${joinSentences([
+          outcome,
+          fact.stakeholders.length > 0 ? `This work aligned ${formatList(fact.stakeholders)}` : null,
+        ])}`;
       case "technical":
-        return `- ${fact.heading}: ${fact.action ?? fact.title}. ${outcome}`;
+        return `- ${fact.heading}: ${joinSentences([fact.action ?? fact.title, outcome])}`;
     }
   }
 
   switch (tone) {
     case "concise":
-      return `- ${fact.heading}: ${fact.action ?? fact.title}; ${lowercaseFirst(outcome)}`;
+      return fact.action
+        ? `- ${fact.heading}: ${trimClause(fact.action)}; ${lowerClause(outcome) ?? "outcome still needs tighter evidence"}.`
+        : `- ${fact.heading}: ${clauseToSentence(outcome)}`;
     case "confident":
-      return `- ${fact.heading}: ${outcome} ${fact.action ? `Delivered through ${lowercaseFirst(ensureSentence(fact.action) ?? fact.action)}` : ""}`.trim();
+      return `- ${fact.heading}: ${joinSentences([
+        outcome,
+        fact.action,
+      ])}`;
     case "executive":
-      return `- ${fact.heading}: ${outcome} ${fact.project ? `Scope sat in ${fact.project}.` : ""}`.trim();
+      return `- ${fact.heading}: ${joinSentences([
+        outcome,
+        fact.project ? `Scope sat in ${fact.project}` : null,
+      ])}`;
     case "technical":
-      return `- ${fact.heading}: ${fact.action ?? fact.title} ${fact.metric ? `The measurable result was ${lowercaseFirst(fact.metric)}` : lowercasedSentence(fact.result)}`;
+      return `- ${fact.heading}: ${joinSentences([
+        fact.action ?? fact.title,
+        fact.metric ? `Measured result: ${fact.metric}` : fact.result,
+      ])}`;
   }
-}
-
-function lowercasedSentence(value: string | null | undefined) {
-  if (!value) {
-    return "The result still needs to be recorded.";
-  }
-
-  return ensureSentence(lowercaseFirst(value)) ?? value;
 }
 
 function buildImpactLines(facts: EntryFact[], tone: GeneratorTone) {
@@ -351,13 +380,22 @@ function buildImpactLines(facts: EntryFact[], tone: GeneratorTone) {
 
     switch (tone) {
       case "concise":
-        return `- ${fact.heading}: ${outcome}`;
+        return `- ${fact.heading}: ${clauseToSentence(outcome)}`;
       case "confident":
-        return `- ${fact.heading}: ${outcome} ${fact.proofSummary ? `Supporting proof: ${fact.proofSummary}` : ""}`.trim();
+        return `- ${fact.heading}: ${joinSentences([
+          outcome,
+          fact.proofSummary ? `Supporting proof: ${fact.proofSummary}` : null,
+        ])}`;
       case "executive":
-        return `- ${fact.heading}: ${outcome} ${fact.stakeholders.length > 0 ? `The work affected ${formatList(fact.stakeholders)}.` : ""}`.trim();
+        return `- ${fact.heading}: ${joinSentences([
+          outcome,
+          fact.stakeholders.length > 0 ? `The work affected ${formatList(fact.stakeholders)}` : null,
+        ])}`;
       case "technical":
-        return `- ${fact.heading}: ${fact.result ?? fact.metric ?? outcome} ${fact.metric && fact.result ? `Measured by ${lowercaseFirst(fact.metric)}` : ""}`.trim();
+        return `- ${fact.heading}: ${joinSentences([
+          fact.result ?? fact.metric ?? outcome,
+          fact.metric && fact.result ? `Measured by ${fact.metric}` : null,
+        ])}`;
     }
   });
 }
@@ -384,18 +422,25 @@ function buildLeadershipLines(facts: EntryFact[], tone: GeneratorTone) {
     const scopeSignals = uniqueStrings([...fact.seniorityTags, ...fact.roleTags]);
     const scopeLine =
       scopeSignals.length > 0
-        ? `Signals included ${formatList(scopeSignals)}.`
+        ? `Signals included ${formatList(scopeSignals)}`
         : "";
 
     switch (tone) {
       case "concise":
-        return `- ${fact.heading}: ${stakeholderText}. ${scopeLine}`.trim();
+        return `- ${fact.heading}: ${joinSentences([stakeholderText, scopeLine])}`;
       case "confident":
-        return `- ${fact.heading}: ${stakeholderText}. ${scopeLine}`.trim();
+        return `- ${fact.heading}: ${joinSentences([stakeholderText, scopeLine])}`;
       case "executive":
-        return `- ${fact.heading}: ${stakeholderText}. ${scopeLine} ${fact.result ? `This translated into ${lowercaseFirst(fact.result)}` : ""}`.trim();
+        return `- ${fact.heading}: ${joinSentences([
+          stakeholderText,
+          scopeLine,
+          fact.result ? `This translated into ${lowerClause(fact.result)}` : null,
+        ])}`;
       case "technical":
-        return `- ${fact.heading}: ${stakeholderText} while shipping ${lowercaseFirst(fact.action ?? fact.title)}. ${scopeLine}`.trim();
+        return `- ${fact.heading}: ${joinSentences([
+          `${stakeholderText} while shipping ${lowerClause(fact.action ?? fact.title)}`,
+          scopeLine,
+        ])}`;
     }
   });
 }
@@ -588,13 +633,28 @@ function buildPromotionEvidenceLine(
 
   switch (tone) {
     case "concise":
-      return `- ${fact.heading}: ${outcome} ${evidence ? `Proof: ${evidence}` : ""}`.trim();
+      return `- ${fact.heading}: ${joinSentences([
+        outcome,
+        evidence ? `Proof: ${evidence}` : null,
+      ])}`;
     case "confident":
-      return `- ${fact.heading}: ${fact.action ?? fact.title}. ${outcome} ${evidence ? `Proof: ${evidence}` : ""}`.trim();
+      return `- ${fact.heading}: ${joinSentences([
+        fact.action ?? fact.title,
+        outcome,
+        evidence ? `Proof: ${evidence}` : null,
+      ])}`;
     case "executive":
-      return `- ${fact.heading}: ${outcome} ${fact.stakeholders.length > 0 ? `Stakeholders: ${formatList(fact.stakeholders)}.` : ""} ${evidence ? `Proof: ${evidence}` : ""}`.trim();
+      return `- ${fact.heading}: ${joinSentences([
+        outcome,
+        fact.stakeholders.length > 0 ? `Stakeholders: ${formatList(fact.stakeholders)}` : null,
+        evidence ? `Proof: ${evidence}` : null,
+      ])}`;
     case "technical":
-      return `- ${fact.heading}: ${fact.action ?? fact.title}. ${outcome} ${evidence ? `Evidence included ${lowercaseFirst(evidence)}` : ""}`.trim();
+      return `- ${fact.heading}: ${joinSentences([
+        fact.action ?? fact.title,
+        outcome,
+        evidence ? `Evidence included ${lowerClause(evidence)}` : null,
+      ])}`;
   }
 }
 
@@ -668,7 +728,7 @@ function buildResumeBullet(
   variantIndex: number,
 ) {
   const action = fact.action ?? fact.title;
-  const scope = fact.project ? `for ${fact.project}` : null;
+  const scopedAction = fact.project ? `${action} for ${fact.project}` : action;
   const outcomeFragments = buildOutcomeFragments(fact);
   const primaryOutcome = outcomeFragments[0];
   const secondaryOutcome = outcomeFragments[1];
@@ -676,25 +736,29 @@ function buildResumeBullet(
   if (variantIndex % 2 === 0) {
     switch (tone) {
       case "concise":
-        return `- ${action}${scope ? ` ${scope}` : ""}${primaryOutcome ? `, ${lowercaseFirst(primaryOutcome)}` : ""}${secondaryOutcome ? `, ${lowercaseFirst(secondaryOutcome)}` : ""}`;
+        return `- ${joinWithCommas([
+          trimClause(scopedAction),
+          lowerClause(primaryOutcome),
+          lowerClause(secondaryOutcome),
+        ])}.`;
       case "confident":
-        return `- ${action}${scope ? ` ${scope}` : ""}, resulting in ${lowercaseFirst(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowercaseFirst(secondaryOutcome)}` : ""}`;
+        return `- ${trimClause(scopedAction)}, resulting in ${lowerClause(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowerClause(secondaryOutcome)}` : ""}.`;
       case "executive":
-        return `- ${action}${scope ? ` ${scope}` : ""}, creating ${lowercaseFirst(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowercaseFirst(secondaryOutcome)}` : ""}`;
+        return `- ${trimClause(scopedAction)}, creating ${lowerClause(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowerClause(secondaryOutcome)}` : ""}.`;
       case "technical":
-        return `- ${action}${scope ? ` ${scope}` : ""}, improving ${lowercaseFirst(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowercaseFirst(secondaryOutcome)}` : ""}`;
+        return `- ${trimClause(scopedAction)}, improving ${lowerClause(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowerClause(secondaryOutcome)}` : ""}.`;
     }
   }
 
   switch (tone) {
     case "concise":
-      return `- ${fact.project ? `${fact.project}: ` : ""}${action}${primaryOutcome ? `; ${lowercaseFirst(primaryOutcome)}` : ""}`;
+      return `- ${fact.project ? `${fact.project}: ` : ""}${trimClause(action)}${primaryOutcome ? `; ${lowerClause(primaryOutcome)}` : ""}.`;
     case "confident":
-      return `- Delivered ${lowercaseFirst(action)}${scope ? ` ${scope}` : ""}, with ${lowercaseFirst(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowercaseFirst(secondaryOutcome)}` : ""}`;
+      return `- Delivered ${lowerClause(action)}${fact.project ? ` for ${fact.project}` : ""}, with ${lowerClause(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowerClause(secondaryOutcome)}` : ""}.`;
     case "executive":
-      return `- Led ${lowercaseFirst(action)}${scope ? ` ${scope}` : ""}, driving ${lowercaseFirst(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowercaseFirst(secondaryOutcome)}` : ""}`;
+      return `- Led ${lowerClause(action)}${fact.project ? ` for ${fact.project}` : ""}, driving ${lowerClause(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowerClause(secondaryOutcome)}` : ""}.`;
     case "technical":
-      return `- Shipped ${lowercaseFirst(action)}${scope ? ` ${scope}` : ""}, producing ${lowercaseFirst(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowercaseFirst(secondaryOutcome)}` : ""}`;
+      return `- Shipped ${lowerClause(action)}${fact.project ? ` for ${fact.project}` : ""}, producing ${lowerClause(primaryOutcome ?? "a documented outcome")}${secondaryOutcome ? ` and ${lowerClause(secondaryOutcome)}` : ""}.`;
   }
 }
 
@@ -741,10 +805,10 @@ function buildResultLine(fact: EntryFact, tone: GeneratorTone) {
   }
 
   if (tone === "concise") {
-    return `Result: ${pieces.join(" ")}`;
+    return `Result: ${joinSentences(pieces)}`;
   }
 
-  return `Result: ${pieces.join(" ")}`;
+  return `Result: ${joinSentences(pieces)}`;
 }
 
 function generateStarStories(

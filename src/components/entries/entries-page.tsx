@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { LoadDemoEntriesButton } from "@/components/demo/load-demo-entries-button";
 import { EntryFiltersPanel } from "@/components/entries/entry-filters-panel";
 import { EntryCard } from "@/components/entries/entry-card";
 import { PageHeader } from "@/components/layout/page-header";
@@ -33,7 +34,7 @@ export function EntriesPage() {
     <div className="space-y-8">
       <PageHeader
         title="Entries"
-        description="Every accomplishment entry is a reusable evidence packet: context, result, and proof in one place."
+        description="Every entry keeps the context, result, and proof together so the work is reusable later."
         action={
           <Link href="/entries/new" className={buttonStyles({ size: "lg" })}>
             New entry
@@ -78,10 +79,14 @@ export function EntriesPage() {
             "Store a metric, artifact, or screenshot so the entry holds up months later.",
             "Use tags and stakeholders now so future drafts can group work by impact, scope, and theme.",
           ]}
-          ctaHref="/entries/new"
-          ctaLabel="Capture your first entry"
-          secondaryCtaHref="/settings"
-          secondaryCtaLabel="Load sample entries"
+          actions={
+            <>
+              <Link href="/entries/new" className={buttonStyles()}>
+                Capture your first entry
+              </Link>
+              <LoadDemoEntriesButton />
+            </>
+          }
         />
       ) : (
         <div className="space-y-6">

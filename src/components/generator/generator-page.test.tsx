@@ -1,9 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GeneratorPage } from "@/components/generator/generator-page";
-import { sampleEntries } from "@/test/fixtures/entries";
+import { demoEntries } from "@/test/fixtures/entries";
 
-let mockEntries = sampleEntries;
+let mockEntries = demoEntries;
 const writeText = vi.fn();
 
 vi.mock("next/link", () => ({
@@ -24,11 +24,15 @@ vi.mock("@/hooks/use-entry", () => ({
 
 describe("GeneratorPage", () => {
   beforeEach(() => {
-    mockEntries = sampleEntries;
+    mockEntries = demoEntries;
     writeText.mockReset();
     writeText.mockResolvedValue(undefined);
 
     Object.defineProperty(globalThis.navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+    });
+    Object.defineProperty(window.navigator, "clipboard", {
       value: { writeText },
       configurable: true,
     });
@@ -92,6 +96,11 @@ describe("GeneratorPage", () => {
     ).value;
     expect(regeneratedDraft).not.toBe(refreshedDraft);
 
+    await user.click(screen.getByRole("button", { name: "Select all" }));
+    await waitFor(() => {
+      expect(textarea).toHaveFocus();
+    });
+
     await user.click(screen.getByRole("button", { name: "Copy" }));
     await screen.findByText("Draft copied to the clipboard.");
   });
@@ -104,11 +113,35 @@ describe("GeneratorPage", () => {
     expect(
       screen.getByText("No entries available to generate from"),
     ).toBeInTheDocument();
-    expect(screen.getByText("Load sample entries")).toBeInTheDocument();
+    expect(screen.getByText("Load demo entries")).toBeInTheDocument();
     expect(
       screen.getByText(
         "Structured proof is what lets the same entry become a self-review paragraph, resume bullet, or STAR story.",
       ),
     ).toBeInTheDocument();
+  });
+
+  it("falls back to manual copy instructions when clipboard access fails", async () => {
+    const user = userEvent.setup();
+    const clipboardWriteText = vi
+      .spyOn(navigator.clipboard, "writeText")
+      .mockRejectedValue(new Error("denied"));
+
+    render(<GeneratorPage />);
+
+    await user.click(
+      screen.getByLabelText("Select Stabilized the CI lane for monorepo builds"),
+    );
+    await user.click(screen.getByRole("button", { name: "Generate" }));
+    await screen.findByLabelText("Editable output");
+    await user.click(screen.getByRole("button", { name: "Copy" }));
+
+    expect(
+      await screen.findByText(/Clipboard access failed\./),
+    ).toBeInTheDocument();
+    expect(clipboardWriteText).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByLabelText("Editable output")).toHaveFocus();
+    });
   });
 });

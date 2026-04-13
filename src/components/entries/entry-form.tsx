@@ -1,10 +1,11 @@
 "use client";
 
 import type { FormEvent, ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { ZodError } from "zod";
 import { ProofImagePreview } from "@/components/entries/proof-image-preview";
 import { ProofStrengthBadge } from "@/components/entries/proof-strength-badge";
+import { ProofStrengthExplainer } from "@/components/entries/proof-strength-explainer";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -87,13 +88,13 @@ function buildValidationPayload(
 function proofGuidance(strength: ReturnType<typeof getProofStrength>) {
   switch (strength) {
     case "weak":
-      return "Add one proof item so this entry is more than memory.";
+      return "Add a metric or one saved proof item so this entry is more than memory.";
     case "medium":
-      return "A link, screenshot, or quote would make this much easier to trust later.";
+      return "Add a metric, quote, screenshot, or artifact to move beyond narrative-only proof.";
     case "strong":
-      return "You have concrete proof. Add a metric if you want this to become strongest.";
+      return "You already have a metric or concrete proof. Pair both together to reach strongest proof.";
     case "strongest":
-      return "This has both measurable impact and concrete evidence.";
+      return "This entry already pairs measurable impact with concrete proof.";
   }
 }
 
@@ -112,6 +113,8 @@ function SectionCard({
   onToggle: (sectionId: SectionId) => void;
   children: ReactNode;
 }) {
+  const contentId = useId();
+
   return (
     <Card className="rounded-[2rem]">
       <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -119,11 +122,21 @@ function SectionCard({
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => onToggle(id)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-expanded={isOpen}
+          aria-controls={contentId}
+          onClick={() => onToggle(id)}
+        >
           {isOpen ? "Collapse" : "Expand"}
         </Button>
       </CardHeader>
-      {isOpen ? <CardContent className="space-y-5">{children}</CardContent> : null}
+      {isOpen ? (
+        <CardContent id={contentId} className="space-y-5">
+          {children}
+        </CardContent>
+      ) : null}
     </Card>
   );
 }
@@ -153,6 +166,12 @@ function ProofItemEditor({
   onClearImage: (proofItemId: string) => void;
   onRemove: (proofItemId: string) => void;
 }) {
+  const proofTypeId = `proof-${item.id}-type`;
+  const titleId = `proof-${item.id}-title`;
+  const linkId = `proof-${item.id}-link`;
+  const metricId = `proof-${item.id}-metric`;
+  const summaryId = `proof-${item.id}-summary`;
+  const imageId = `proof-${item.id}-image`;
   const titleError = errorFor(`proofItems.${index}.title`);
   const summaryError = errorFor(`proofItems.${index}.summary`);
   const linkError = errorFor(`proofItems.${index}.link`);
@@ -170,6 +189,8 @@ function ProofItemEditor({
         </div>
         <div className="flex flex-wrap gap-3">
           <Select
+            id={proofTypeId}
+            aria-label={`Proof type for item ${index + 1}`}
             value={item.type}
             className="min-w-52"
             onChange={(event) =>
@@ -189,8 +210,11 @@ function ProofItemEditor({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Source or label</label>
+        <label htmlFor={titleId} className="text-sm font-medium text-foreground">
+          Source or label
+        </label>
         <Input
+          id={titleId}
           value={item.title ?? ""}
           placeholder="PR retrospective, customer email, launch brief"
           onChange={(event) => onFieldChange(item.id, "title", optionalValue(event.target.value))}
@@ -201,8 +225,11 @@ function ProofItemEditor({
       {item.type === "artifactLink" || item.type === "releaseNote" ? (
         <>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Link</label>
+            <label htmlFor={linkId} className="text-sm font-medium text-foreground">
+              Link
+            </label>
             <Input
+              id={linkId}
               value={item.link ?? ""}
               placeholder="https://example.com/release-notes"
               onChange={(event) =>
@@ -212,8 +239,11 @@ function ProofItemEditor({
             {linkError ? <p className="text-sm text-danger">{linkError}</p> : null}
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Why it matters</label>
+            <label htmlFor={summaryId} className="text-sm font-medium text-foreground">
+              Why it matters
+            </label>
             <Textarea
+              id={summaryId}
               value={item.summary ?? ""}
               placeholder="What does this artifact prove?"
               onChange={(event) =>
@@ -228,8 +258,11 @@ function ProofItemEditor({
       {item.type === "metricSnapshot" ? (
         <>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Metric</label>
+            <label htmlFor={metricId} className="text-sm font-medium text-foreground">
+              Metric
+            </label>
             <Input
+              id={metricId}
               value={item.metric ?? ""}
               placeholder="Median time-to-triage fell from 2.4 days to 6 hours"
               onChange={(event) =>
@@ -239,8 +272,11 @@ function ProofItemEditor({
             {metricError ? <p className="text-sm text-danger">{metricError}</p> : null}
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Context</label>
+            <label htmlFor={summaryId} className="text-sm font-medium text-foreground">
+              Context
+            </label>
             <Textarea
+              id={summaryId}
               value={item.summary ?? ""}
               placeholder="Where did the metric come from and what changed?"
               onChange={(event) =>
@@ -255,8 +291,11 @@ function ProofItemEditor({
       {item.type === "screenshot" ? (
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">What does the screenshot show?</label>
+            <label htmlFor={summaryId} className="text-sm font-medium text-foreground">
+              What does the screenshot show?
+            </label>
             <Textarea
+              id={summaryId}
               value={item.summary ?? ""}
               placeholder="Dashboard after the fix, rollout graph, user-facing before/after"
               onChange={(event) =>
@@ -266,7 +305,11 @@ function ProofItemEditor({
             {summaryError ? <p className="text-sm text-danger">{summaryError}</p> : null}
           </div>
           <div className="space-y-3">
+            <label htmlFor={imageId} className="text-sm font-medium text-foreground">
+              Attach image
+            </label>
             <input
+              id={imageId}
               type="file"
               accept="image/*"
               className="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2.5 file:font-medium file:text-accent-foreground"
@@ -294,8 +337,11 @@ function ProofItemEditor({
       item.type === "meetingNote" ||
       item.type === "beforeAfterSummary" ? (
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Summary</label>
+          <label htmlFor={summaryId} className="text-sm font-medium text-foreground">
+            Summary
+          </label>
           <Textarea
+            id={summaryId}
             value={item.summary ?? ""}
             placeholder={
               item.type === "beforeAfterSummary"
@@ -373,6 +419,7 @@ export function EntryForm({
     () => getProofStrength(buildValidationPayload(values, imageFiles)),
     [imageFiles, values],
   );
+  const advancedStructureId = useId();
 
   function errorFor(path: string) {
     return errors[path];
@@ -543,8 +590,11 @@ export function EntryForm({
       >
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-2 md:col-span-2">
-            <label className="text-sm font-medium text-foreground">Title</label>
+            <label htmlFor="entry-title" className="text-sm font-medium text-foreground">
+              Title
+            </label>
             <Input
+              id="entry-title"
               value={values.title}
               placeholder="Stabilized release pipeline during infra migration"
               onChange={(event) => setValue("title", event.target.value)}
@@ -553,8 +603,11 @@ export function EntryForm({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Project</label>
+            <label htmlFor="entry-project" className="text-sm font-medium text-foreground">
+              Project
+            </label>
             <Input
+              id="entry-project"
               value={values.project ?? ""}
               placeholder="Developer Platform"
               onChange={(event) => setOptionalField("project", event.target.value)}
@@ -562,8 +615,11 @@ export function EntryForm({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Start date</label>
+            <label htmlFor="entry-start-date" className="text-sm font-medium text-foreground">
+              Start date
+            </label>
             <Input
+              id="entry-start-date"
               type="date"
               value={values.startDate ?? ""}
               onChange={(event) => setOptionalField("startDate", event.target.value)}
@@ -571,8 +627,11 @@ export function EntryForm({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">End date</label>
+            <label htmlFor="entry-end-date" className="text-sm font-medium text-foreground">
+              End date
+            </label>
             <Input
+              id="entry-end-date"
               type="date"
               value={values.endDate ?? ""}
               onChange={(event) => setOptionalField("endDate", event.target.value)}
@@ -590,8 +649,11 @@ export function EntryForm({
         onToggle={toggleSection}
       >
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Context</label>
+          <label htmlFor="entry-situation" className="text-sm font-medium text-foreground">
+            Context
+          </label>
           <Textarea
+            id="entry-situation"
             value={values.situation ?? ""}
             placeholder="The problem, risk, or opportunity that made this accomplishment meaningful."
             onChange={(event) => setOptionalField("situation", event.target.value)}
@@ -607,8 +669,11 @@ export function EntryForm({
         onToggle={toggleSection}
       >
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Action</label>
+          <label htmlFor="entry-action" className="text-sm font-medium text-foreground">
+            Action
+          </label>
           <Textarea
+            id="entry-action"
             value={values.action ?? ""}
             placeholder="The decision, build, coordination, or unblocking work you actually did."
             onChange={(event) => setOptionalField("action", event.target.value)}
@@ -625,16 +690,22 @@ export function EntryForm({
       >
         <div className="space-y-5">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Result</label>
+            <label htmlFor="entry-result" className="text-sm font-medium text-foreground">
+              Result
+            </label>
             <Textarea
+              id="entry-result"
               value={values.result ?? ""}
               placeholder="What changed for users, the team, or the business?"
               onChange={(event) => setOptionalField("result", event.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Top-line metric</label>
+            <label htmlFor="entry-metric" className="text-sm font-medium text-foreground">
+              Top-line metric
+            </label>
             <Input
+              id="entry-metric"
               value={values.metric ?? ""}
               placeholder="Failure rate dropped from 18% to 3%"
               onChange={(event) => setOptionalField("metric", event.target.value)}
@@ -663,6 +734,8 @@ export function EntryForm({
             </p>
           </CardContent>
         </Card>
+
+        <ProofStrengthExplainer title="Proof strength rubric" />
 
         <div className="flex flex-wrap gap-3">
           {proofItemTypeOptions.map((proofType) => (
@@ -712,6 +785,7 @@ export function EntryForm({
           <PillInput
             label="Primary tags"
             hint="These power the main filters and tag analytics."
+            inputId="entry-tags"
             values={values.tags}
             onChange={(next) => setArrayField("tags", next)}
             placeholder="reliability, launches, mentoring"
@@ -728,6 +802,8 @@ export function EntryForm({
               <Button
                 variant="ghost"
                 size="sm"
+                aria-expanded={advancedStructureOpen}
+                aria-controls={advancedStructureId}
                 onClick={() => setAdvancedStructureOpen((current) => !current)}
               >
                 {advancedStructureOpen ? "Hide" : "Show"}
@@ -735,10 +811,11 @@ export function EntryForm({
             </div>
 
             {advancedStructureOpen ? (
-              <div className="space-y-5">
+              <div id={advancedStructureId} className="space-y-5">
                 <PillInput
                   label="Stakeholders"
                   hint="Who benefited from or collaborated on this work?"
+                  inputId="entry-stakeholders"
                   values={values.stakeholders}
                   onChange={(next) => setArrayField("stakeholders", next)}
                   placeholder="Support, Product, SRE"
@@ -746,12 +823,14 @@ export function EntryForm({
                 <PillInput
                   label="Seniority tags"
                   hint="Useful later when you want to group entries by scope or leadership."
+                  inputId="entry-seniority-tags"
                   values={values.seniorityTags}
                   onChange={(next) => setArrayField("seniorityTags", next)}
                   placeholder="leadership, scope, influence"
                 />
                 <PillInput
                   label="Role tags"
+                  inputId="entry-role-tags"
                   values={values.roleTags}
                   onChange={(next) => setArrayField("roleTags", next)}
                   placeholder="staff, tech lead, backend"

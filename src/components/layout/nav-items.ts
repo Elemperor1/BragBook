@@ -2,19 +2,19 @@ export const navigationItems = [
   {
     href: "/dashboard",
     label: "Dashboard",
-    shortLabel: "Dash",
-    description: "Track signal, cadence, and recent proof.",
+    shortLabel: "Home",
+    description: "Track signal, proof strength, and recent work.",
   },
   {
     href: "/entries",
     label: "Entries",
     shortLabel: "Entries",
-    description: "Browse your accomplishment vault.",
+    description: "Browse and filter saved accomplishments.",
   },
   {
     href: "/entries/new",
     label: "New Entry",
-    shortLabel: "New",
+    shortLabel: "Capture",
     description: "Capture a win while details are fresh.",
   },
   {
@@ -26,7 +26,7 @@ export const navigationItems = [
   {
     href: "/settings",
     label: "Settings",
-    shortLabel: "Settings",
-    description: "Control local backups, imports, and sample data.",
+    shortLabel: "Prefs",
+    description: "Manage backups, imports, and demo entries.",
   },
 ] as const;

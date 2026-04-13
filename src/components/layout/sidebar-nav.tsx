@@ -18,7 +18,7 @@ export function SidebarNav({ pathname }: { pathname: string }) {
                 BragBook
               </p>
               <p className="text-sm leading-6 text-muted-foreground">
-                Local-first proof for reviews, promotions, and interviews.
+                Proof for reviews, promotions, and interviews, stored only in this browser.
               </p>
             </div>
           </div>
@@ -28,7 +28,7 @@ export function SidebarNav({ pathname }: { pathname: string }) {
               Operating mode
             </p>
             <p className="mt-2 text-sm leading-6 text-foreground">
-              Quiet by default. Sharp when you need it. Everything stays in this browser.
+              Quiet by default. Sharp when you need it. Stored only in this browser unless you export a backup.
             </p>
           </div>
         </div>
@@ -43,6 +43,7 @@ export function SidebarNav({ pathname }: { pathname: string }) {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "flex items-start gap-4 rounded-[1.5rem] px-4 py-4 transition",
                   isActive

@@ -16,17 +16,18 @@ export function MobileNav({ pathname }: { pathname: string }) {
           <Link
             key={item.href}
             href={item.href}
+            aria-label={item.label}
+            aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex flex-1 flex-col items-center gap-1 rounded-[1.25rem] px-2 py-2 text-xs font-medium transition",
+              "flex flex-1 items-center justify-center rounded-[1.25rem] px-2 py-2 text-xs font-medium transition",
               isActive
                 ? "bg-accent text-accent-foreground"
                 : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
             )}
           >
-            <span className="font-mono text-[10px] uppercase tracking-[0.24em]">
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em]">
               {item.shortLabel}
             </span>
-            <span>{item.label}</span>
           </Link>
         );
       })}

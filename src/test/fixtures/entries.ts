@@ -1,1 +1,1 @@
-export { sampleEntries } from "@/lib/sample-entries";
+export { demoEntries } from "@/lib/demo-entries";

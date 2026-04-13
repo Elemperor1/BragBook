@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LoadDemoEntriesButton } from "@/components/demo/load-demo-entries-button";
 import { EntryCard } from "@/components/entries/entry-card";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +27,7 @@ export function DashboardPage() {
       <div className="space-y-6">
         <PageHeader
           title="Dashboard"
-          description="Loading your local accomplishment vault."
+          description="Loading your browser-local evidence."
         />
         <section className="grid gap-4 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
@@ -68,7 +69,7 @@ export function DashboardPage() {
       <div className="space-y-8">
         <PageHeader
           title="Dashboard"
-          description="Capture now, sort signal later, and avoid review-season archaeology."
+          description="Capture the work while it is fresh, then reuse the proof when review season shows up."
           action={
             <Link href="/entries/new" className={buttonStyles({ size: "lg" })}>
               Capture a new win
@@ -77,17 +78,21 @@ export function DashboardPage() {
         />
         <EmptyState
           eyebrow="First launch"
-          title="Nothing in the vault yet"
-          description="BragBook works best when you save evidence close to the work itself. Start with one recent accomplishment or load sample entries to see the intended workflow."
+          title="Nothing saved yet"
+          description="BragBook works best when you save evidence close to the work itself. Start with one recent accomplishment or load demo entries to see the intended workflow."
           supportingPoints={[
             "Capture the situation, action, result, and proof while details are still fresh.",
             "Attach metrics, praise, screenshots, and artifacts so future drafts are easier to trust.",
           ]}
           note="Structured proof now makes self-reviews, promotion cases, and interview stories dramatically easier later."
-          ctaHref="/entries/new"
-          ctaLabel="Create an entry"
-          secondaryCtaHref="/settings"
-          secondaryCtaLabel="Load sample entries"
+          actions={
+            <>
+              <Link href="/entries/new" className={buttonStyles()}>
+                Create an entry
+              </Link>
+              <LoadDemoEntriesButton />
+            </>
+          }
         />
       </div>
     );
@@ -97,6 +102,10 @@ export function DashboardPage() {
     ...stats.entriesByQuarter.map((quarter) => quarter.count),
     1,
   );
+  const recentTeasers = stats.recentlyUpdated.slice(0, 3);
+  const strongestTeasers = stats.strongestProofEntries
+    .filter((entry) => !recentTeasers.some((recent) => recent.id === entry.id))
+    .slice(0, 3);
 
   return (
     <div className="space-y-8">
@@ -125,12 +134,12 @@ export function DashboardPage() {
         <StatTile
           label="Strong proof"
           value={stats.proofStrengthCounts.strong + stats.proofStrengthCounts.strongest}
-          helper="Entries with concrete evidence attached."
+          helper="Entries with a metric or concrete saved proof."
         />
         <StatTile
           label="Strongest proof"
           value={stats.proofStrengthCounts.strongest}
-          helper="Metric plus quote, screenshot, or artifact."
+          helper="Metric plus a concrete quote, artifact, or screenshot."
         />
       </section>
 
@@ -194,9 +203,14 @@ export function DashboardPage() {
           eyebrow="Recent work"
           title="Recently updated entries"
           description="These are the easiest wins to finish polishing while the details are still easy to recover."
+          action={
+            <Link href="/entries" className={buttonStyles({ variant: "secondary", size: "sm" })}>
+              View all entries
+            </Link>
+          }
         />
         <div className="grid gap-4 xl:grid-cols-2">
-          {stats.recentlyUpdated.map((entry) => (
+          {recentTeasers.map((entry) => (
             <EntryCard key={entry.id} entry={entry} />
           ))}
         </div>
@@ -206,10 +220,18 @@ export function DashboardPage() {
         <SectionHeader
           eyebrow="Best backed-up work"
           title="Strongest proof entries"
-          description="These entries already have the clearest proof posture and will travel best into reviews or promotion cases."
+          description="These entries already have the clearest proof strength and will travel best into reviews or promotion cases."
+          action={
+            <Link
+              href="/generator"
+              className={buttonStyles({ variant: "secondary", size: "sm" })}
+            >
+              Open generator
+            </Link>
+          }
         />
         <div className="grid gap-4 xl:grid-cols-2">
-          {stats.strongestProofEntries.map((entry) => (
+          {strongestTeasers.map((entry) => (
             <EntryCard key={entry.id} entry={entry} />
           ))}
         </div>

@@ -25,6 +25,9 @@ export const metadata: Metadata = {
     "Capture proof of your work and turn it into promotion packets, self-reviews, resume bullets, and interview stories.",
 };
 
+const shouldRenderVercelInsights =
+  process.env.NODE_ENV === "production" && Boolean(process.env.VERCEL);
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,8 +40,12 @@ export default function RootLayout({
     >
       <body className="min-h-full">
         {children}
-        <Analytics />
-        <SpeedInsights />
+        {shouldRenderVercelInsights ? (
+          <>
+            <Analytics />
+            <SpeedInsights />
+          </>
+        ) : null}
       </body>
     </html>
   );

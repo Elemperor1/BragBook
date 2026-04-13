@@ -1,17 +1,23 @@
+import * as React from "react";
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
-export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn(
-        "shell-card rounded-[1.75rem] border border-white/70 text-card-foreground",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+export const Card = React.forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "shell-card rounded-[1.75rem] border border-white/70 text-card-foreground",
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
+
+Card.displayName = "Card";
 
 export function CardHeader({
   className,

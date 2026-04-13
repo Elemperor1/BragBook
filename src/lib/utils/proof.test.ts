@@ -63,6 +63,15 @@ describe("getProofStrength", () => {
     ).toBe("strong");
   });
 
+  it("classifies strong proof for a top-line metric without saved proof items", () => {
+    expect(
+      getProofStrength({
+        ...baseEntry,
+        metric: "Cut onboarding time from 4 days to 2 days.",
+      }),
+    ).toBe("strong");
+  });
+
   it("classifies strongest proof for metric plus concrete evidence", () => {
     expect(
       getProofStrength({

@@ -45,34 +45,34 @@ describe("AppBootstrap", () => {
     render(<AppBootstrap />);
 
     expect(screen.getByText("Welcome to BragBook")).toBeInTheDocument();
-    expect(screen.getByText("Load sample entries")).toBeInTheDocument();
+    expect(screen.getByText("Load demo entries")).toBeInTheDocument();
   });
 
-  it("hides onboarding after choosing start blank", async () => {
+  it("hides onboarding after choosing start empty", async () => {
     const user = userEvent.setup();
 
     render(<AppBootstrap />);
-    await user.click(screen.getByRole("button", { name: "Start blank" }));
+    await user.click(screen.getByRole("button", { name: "Start empty" }));
 
     await waitFor(() => {
       expect(screen.queryByText("Welcome to BragBook")).not.toBeInTheDocument();
     });
 
     expect(window.localStorage.getItem("bragbook-onboarding-dismissed-v1")).toBe("true");
-    expect(window.localStorage.getItem("bragbook-onboarding-choice-v1")).toBe("blank");
+    expect(window.localStorage.getItem("bragbook-onboarding-choice-v1")).toBe("empty");
   });
 
-  it("loads sample entries and records the onboarding choice", async () => {
+  it("loads demo entries and records the onboarding choice", async () => {
     const user = userEvent.setup();
 
     render(<AppBootstrap />);
-    await user.click(screen.getByRole("button", { name: "Load sample entries" }));
+    await user.click(screen.getByRole("button", { name: "Load demo entries" }));
 
     await waitFor(() => {
       expect(seedDemoData).toHaveBeenCalledTimes(1);
     });
 
-    expect(window.localStorage.getItem("bragbook-onboarding-choice-v1")).toBe("sample");
+    expect(window.localStorage.getItem("bragbook-onboarding-choice-v1")).toBe("demo");
   });
 
   it("does not reopen once onboarding was previously dismissed", () => {
