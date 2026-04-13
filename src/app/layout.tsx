@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Manrope } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AppBootstrap } from "@/components/layout/app-bootstrap";
 import { AppShell } from "@/components/layout/app-shell";
 import "./globals.css";
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body className="min-h-full">
         <AppBootstrap />
         <AppShell>{children}</AppShell>
+        <SpeedInsights />
       </body>
     </html>
   );
