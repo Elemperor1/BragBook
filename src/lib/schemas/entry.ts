@@ -1,21 +1,39 @@
 import { z } from "zod";
 
-export const proofTypeOptions = [
-  "artifact",
-  "praise",
-  "metric",
-  "image",
-  "doc",
-  "other",
+export const proofItemTypeOptions = [
+  "screenshot",
+  "pastedPraise",
+  "releaseNote",
+  "metricSnapshot",
+  "customerFeedback",
+  "artifactLink",
+  "meetingNote",
+  "beforeAfterSummary",
 ] as const;
 
-export const proofTypeLabels: Record<ProofType, string> = {
-  artifact: "Artifact",
-  praise: "Praise",
-  metric: "Metric",
-  image: "Image",
-  doc: "Document",
-  other: "Other",
+export const proofStrengthOptions = [
+  "weak",
+  "medium",
+  "strong",
+  "strongest",
+] as const;
+
+export const proofItemTypeLabels: Record<ProofItemType, string> = {
+  screenshot: "Screenshot",
+  pastedPraise: "Pasted praise",
+  releaseNote: "Release note",
+  metricSnapshot: "Metric snapshot",
+  customerFeedback: "Customer feedback",
+  artifactLink: "Artifact link",
+  meetingNote: "Meeting note",
+  beforeAfterSummary: "Before/after summary",
+};
+
+export const proofStrengthLabels: Record<ProofStrength, string> = {
+  weak: "Weak proof",
+  medium: "Medium proof",
+  strong: "Strong proof",
+  strongest: "Strongest proof",
 };
 
 const optionalString = z.preprocess(
@@ -42,12 +60,25 @@ const optionalDate = z.preprocess(
   z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
 );
 
+const optionalUrl = z.preprocess(
+  (value) => {
+    if (typeof value !== "string") {
+      return value;
+    }
+
+    const trimmed = value.trim();
+    return trimmed.length === 0 ? null : trimmed;
+  },
+  z.url("Link must be a valid URL").nullable(),
+);
+
 const stringListSchema = z
   .array(z.string().trim().min(1).max(80))
   .default([])
   .transform((items) => Array.from(new Set(items)));
 
-export const proofTypeSchema = z.enum(proofTypeOptions);
+export const proofItemTypeSchema = z.enum(proofItemTypeOptions);
+export const proofStrengthSchema = z.enum(proofStrengthOptions);
 
 export const localImageSchema = z.object({
   id: z.string().min(1),
@@ -58,6 +89,153 @@ export const localImageSchema = z.object({
   height: z.number().int().positive().optional(),
   createdAt: z.string().datetime(),
 });
+
+export const proofItemSchema = z
+  .object({
+    id: z.string().min(1),
+    type: proofItemTypeSchema,
+    title: optionalString,
+    summary: optionalString,
+    link: optionalUrl,
+    metric: optionalString,
+    localImage: localImageSchema.nullable().default(null),
+  })
+  .superRefine((item, context) => {
+    const hasSummary = Boolean(item.summary);
+    const hasLink = Boolean(item.link);
+    const hasMetric = Boolean(item.metric);
+    const hasImage = Boolean(item.localImage);
+
+    switch (item.type) {
+      case "screenshot": {
+        if (!hasImage) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["localImage"],
+            message: "Screenshots need an attached image",
+          });
+        }
+
+        if (hasLink) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["link"],
+            message: "Screenshots do not use links",
+          });
+        }
+
+        if (hasMetric) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["metric"],
+            message: "Screenshots do not use metric fields",
+          });
+        }
+        break;
+      }
+      case "artifactLink":
+      case "releaseNote": {
+        if (!hasLink) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["link"],
+            message: `${proofItemTypeLabels[item.type]} needs a valid link`,
+          });
+        }
+
+        if (hasImage) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["localImage"],
+            message: `${proofItemTypeLabels[item.type]} does not use image uploads`,
+          });
+        }
+
+        if (hasMetric) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["metric"],
+            message: `${proofItemTypeLabels[item.type]} does not use metric fields`,
+          });
+        }
+        break;
+      }
+      case "metricSnapshot": {
+        if (!hasSummary && !hasMetric) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["metric"],
+            message: "Metric snapshots need a metric or summary",
+          });
+        }
+
+        if (hasLink) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["link"],
+            message: "Metric snapshots do not use links",
+          });
+        }
+
+        if (hasImage) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["localImage"],
+            message: "Metric snapshots do not use image uploads",
+          });
+        }
+        break;
+      }
+      default: {
+        if (!hasSummary) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["summary"],
+            message: `${proofItemTypeLabels[item.type]} needs a summary`,
+          });
+        }
+
+        if (hasLink) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["link"],
+            message: `${proofItemTypeLabels[item.type]} does not use links`,
+          });
+        }
+
+        if (hasMetric) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["metric"],
+            message: `${proofItemTypeLabels[item.type]} does not use metric fields`,
+          });
+        }
+
+        if (hasImage) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["localImage"],
+            message: `${proofItemTypeLabels[item.type]} does not use image uploads`,
+          });
+        }
+      }
+    }
+  });
+
+const proofItemsSchema = z
+  .array(proofItemSchema)
+  .default([])
+  .transform((items) => {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+      if (seen.has(item.id)) {
+        return false;
+      }
+
+      seen.add(item.id);
+      return true;
+    });
+  });
 
 export const accomplishmentEntryInputSchema = z
   .object({
@@ -70,24 +248,10 @@ export const accomplishmentEntryInputSchema = z
     result: optionalString,
     metric: optionalString,
     stakeholders: stringListSchema,
-    proofType: proofTypeSchema,
-    proofNotes: optionalString,
-    pastedPraise: optionalString,
-    artifactLink: z.preprocess(
-      (value) => {
-        if (typeof value !== "string") {
-          return value;
-        }
-
-        const trimmed = value.trim();
-        return trimmed.length === 0 ? null : trimmed;
-      },
-      z.url("Artifact link must be a valid URL").nullable(),
-    ),
+    proofItems: proofItemsSchema,
     tags: stringListSchema,
     seniorityTags: stringListSchema,
     roleTags: stringListSchema,
-    localImage: localImageSchema.nullable().default(null),
   })
   .superRefine((entry, context) => {
     if (entry.startDate && entry.endDate) {
@@ -110,12 +274,26 @@ export const accomplishmentEntrySchema = accomplishmentEntryInputSchema.extend({
   updatedAt: z.string().datetime(),
 });
 
-export type ProofType = z.infer<typeof proofTypeSchema>;
+export type ProofItemType = z.infer<typeof proofItemTypeSchema>;
+export type ProofItem = z.infer<typeof proofItemSchema>;
+export type ProofStrength = z.infer<typeof proofStrengthSchema>;
 export type LocalImage = z.infer<typeof localImageSchema>;
 export type AccomplishmentEntryInput = z.infer<
   typeof accomplishmentEntryInputSchema
 >;
 export type AccomplishmentEntry = z.infer<typeof accomplishmentEntrySchema>;
+
+export function createEmptyProofItem(type: ProofItemType): ProofItem {
+  return {
+    id: crypto.randomUUID(),
+    type,
+    title: null,
+    summary: null,
+    link: null,
+    metric: null,
+    localImage: null,
+  };
+}
 
 export const emptyEntryInput: AccomplishmentEntryInput = {
   title: "",
@@ -127,12 +305,8 @@ export const emptyEntryInput: AccomplishmentEntryInput = {
   result: null,
   metric: null,
   stakeholders: [],
-  proofType: "artifact",
-  proofNotes: null,
-  pastedPraise: null,
-  artifactLink: null,
+  proofItems: [],
   tags: [],
   seniorityTags: [],
   roleTags: [],
-  localImage: null,
 };

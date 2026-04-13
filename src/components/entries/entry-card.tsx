@@ -3,6 +3,17 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { AccomplishmentEntry } from "@/lib/schemas/entry";
 import { EntryMetadataStrip } from "@/components/entries/entry-metadata-strip";
+import { getProofSummary } from "@/lib/utils/proof";
+
+function getEntrySummary(entry: AccomplishmentEntry) {
+  return (
+    entry.result ??
+    entry.metric ??
+    entry.action ??
+    (entry.proofItems.length > 0 ? getProofSummary(entry) : null) ??
+    "No summary recorded yet."
+  );
+}
 
 export function EntryCard({ entry }: { entry: AccomplishmentEntry }) {
   return (
@@ -17,7 +28,7 @@ export function EntryCard({ entry }: { entry: AccomplishmentEntry }) {
             {entry.title}
           </Link>
           <p className="text-sm leading-6 text-muted-foreground">
-            {entry.result ?? entry.action ?? "No summary recorded yet."}
+            {getEntrySummary(entry)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

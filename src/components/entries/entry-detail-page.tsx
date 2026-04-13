@@ -6,15 +6,31 @@ import { useState } from "react";
 import { EntryForm } from "@/components/entries/entry-form";
 import { EntryMetadataStrip } from "@/components/entries/entry-metadata-strip";
 import { ProofImagePreview } from "@/components/entries/proof-image-preview";
+import { ProofStrengthBadge } from "@/components/entries/proof-strength-badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonStyles } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useEntry } from "@/hooks/use-entry";
-import type { AccomplishmentEntryInput } from "@/lib/schemas/entry";
-import { deleteEntry, updateEntry } from "@/lib/storage/entries";
+import {
+  proofItemTypeLabels,
+  type AccomplishmentEntry,
+  type AccomplishmentEntryInput,
+} from "@/lib/schemas/entry";
+import {
+  deleteEntry,
+  updateEntry,
+  type ProofImageFileMap,
+} from "@/lib/storage/entries";
+import { getProofStrength } from "@/lib/utils/proof";
 
 function DetailSection({
   title,
@@ -34,6 +50,71 @@ function DetailSection({
         </p>
       </CardContent>
     </Card>
+  );
+}
+
+function ProofItemCard({ entry }: { entry: AccomplishmentEntry }) {
+  if (entry.proofItems.length === 0) {
+    return (
+      <EmptyState
+        title="No proof saved yet"
+        description="The narrative is here, but it still needs concrete evidence like a metric snapshot, quote, screenshot, or artifact link."
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {entry.proofItems.map((proofItem) => (
+        <Card key={proofItem.id} className="rounded-[1.75rem]">
+          <CardHeader>
+            <div className="flex flex-wrap items-center gap-3">
+              <Badge variant="subtle">{proofItemTypeLabels[proofItem.type]}</Badge>
+              {proofItem.title ? (
+                <p className="text-sm font-medium text-foreground">{proofItem.title}</p>
+              ) : null}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {proofItem.metric ? (
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-foreground">Metric</p>
+                <p className="text-sm leading-7 text-muted-foreground">
+                  {proofItem.metric}
+                </p>
+              </div>
+            ) : null}
+
+            {proofItem.summary ? (
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-foreground">Summary</p>
+                <p className="text-sm leading-7 text-muted-foreground">
+                  {proofItem.summary}
+                </p>
+              </div>
+            ) : null}
+
+            {proofItem.link ? (
+              <Link
+                href={proofItem.link}
+                target="_blank"
+                rel="noreferrer"
+                className={buttonStyles({ variant: "secondary", size: "sm" })}
+              >
+                Open linked proof
+              </Link>
+            ) : null}
+
+            {proofItem.localImage ? (
+              <ProofImagePreview
+                image={proofItem.localImage}
+                title={proofItem.title ?? "Attached screenshot proof"}
+              />
+            ) : null}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 }
 
@@ -73,9 +154,9 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
 
   async function handleUpdate(
     values: AccomplishmentEntryInput,
-    imageFile?: File | null,
+    imageFiles?: ProofImageFileMap,
   ) {
-    await updateEntry(entryId, values, imageFile);
+    await updateEntry(entryId, values, imageFiles);
     setIsEditing(false);
   }
 
@@ -83,6 +164,8 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
     await deleteEntry(entryId);
     router.push("/entries");
   }
+
+  const proofStrength = getProofStrength(entry);
 
   return (
     <div className="space-y-8">
@@ -117,11 +200,23 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
             <CardHeader>
               <CardTitle>Evidence summary</CardTitle>
               <CardDescription>
-                A complete snapshot of the accomplishment, including proof and reusable review context.
+                A reusable snapshot of the accomplishment, the outcome, and how well the proof holds up.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
               <EntryMetadataStrip entry={entry} />
+              <div className="flex flex-wrap items-center gap-3">
+                <ProofStrengthBadge entry={entry} />
+                <Badge variant="subtle">
+                  {proofStrength === "strongest"
+                    ? "Metric plus concrete proof"
+                    : proofStrength === "strong"
+                      ? "Concrete proof captured"
+                      : proofStrength === "medium"
+                        ? "Narrative proof only"
+                        : "Needs stronger evidence"}
+                </Badge>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {entry.tags.map((tag) => (
                   <Badge key={tag}>{tag}</Badge>
@@ -145,38 +240,17 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
               <CardHeader>
                 <CardTitle>Supporting proof</CardTitle>
                 <CardDescription>
-                  Capture what would help a reviewer trust the impact quickly.
+                  Concrete signals that help a reviewer trust the outcome quickly.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-5">
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-foreground">Metric</p>
+                  <p className="text-sm font-medium text-foreground">Top-line metric</p>
                   <p className="text-sm leading-7 text-muted-foreground">
-                    {entry.metric ?? "No metric recorded yet."}
+                    {entry.metric ?? "No top-line metric recorded yet."}
                   </p>
                 </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-foreground">Proof notes</p>
-                  <p className="text-sm leading-7 text-muted-foreground">
-                    {entry.proofNotes ?? "No proof notes recorded yet."}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-foreground">Pasted praise</p>
-                  <blockquote className="rounded-[1.5rem] bg-muted/60 px-4 py-4 text-sm leading-7 text-muted-foreground">
-                    {entry.pastedPraise ?? "No direct praise saved yet."}
-                  </blockquote>
-                </div>
-                {entry.artifactLink ? (
-                  <Link
-                    href={entry.artifactLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={buttonStyles({ variant: "secondary" })}
-                  >
-                    Open artifact
-                  </Link>
-                ) : null}
+                <ProofItemCard entry={entry} />
               </CardContent>
             </Card>
 
@@ -193,17 +267,24 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
                       </Badge>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground">No stakeholders captured.</p>
+                    <p className="text-sm text-muted-foreground">
+                      No stakeholders captured.
+                    </p>
                   )}
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Local image evidence</CardTitle>
+                  <CardTitle>Proof posture</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ProofImagePreview image={entry.localImage} />
+                <CardContent className="space-y-3 text-sm leading-7 text-muted-foreground">
+                  <p>
+                    Proof strength is derived from the saved evidence, not entered manually.
+                  </p>
+                  <p>
+                    Strongest entries combine a metric with a quote, screenshot, or artifact.
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -215,7 +296,7 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
         open={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
         title="Delete this entry?"
-        description="This removes the accomplishment and any linked local image from this browser."
+        description="This removes the accomplishment and any linked local screenshots from this browser."
         confirmLabel="Delete entry"
         confirmVariant="danger"
         onConfirm={handleDelete}

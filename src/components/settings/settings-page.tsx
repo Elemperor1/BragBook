@@ -67,7 +67,7 @@ export function SettingsPage() {
           <CardHeader>
             <CardTitle>Local data controls</CardTitle>
             <CardDescription>
-              Use these actions when you want a clean demo environment or need to reset the browser-local vault.
+              Demo data is opt-in now. Use these actions when you want a walkthrough dataset or need to reset the browser-local vault.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-3">
@@ -76,7 +76,7 @@ export function SettingsPage() {
               disabled={isWorking}
               onClick={() => setSeedOpen(true)}
             >
-              Reseed demo data
+              Load demo entries
             </Button>
             <Button
               variant="ghost"
@@ -107,8 +107,8 @@ export function SettingsPage() {
         open={seedOpen}
         onClose={() => setSeedOpen(false)}
         title="Reseed demo data?"
-        description="This replaces the current local vault with the BragBook demo dataset."
-        confirmLabel="Reseed"
+        description="This replaces the current local vault with a realistic BragBook demo dataset for a software engineer."
+        confirmLabel="Load demo entries"
         onConfirm={async () => {
           setIsWorking(true);
           await seedDemoData(true);

@@ -3,13 +3,19 @@
 import Link from "next/link";
 import { EntryCard } from "@/components/entries/entry-card";
 import { PageHeader } from "@/components/layout/page-header";
+import { Badge } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SectionHeader } from "@/components/ui/section-header";
 import { StatTile } from "@/components/ui/stat-tile";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
-import { proofTypeLabels, proofTypeOptions } from "@/lib/schemas/entry";
 
 export function DashboardPage() {
   const stats = useDashboardStats();
@@ -25,11 +31,40 @@ export function DashboardPage() {
     );
   }
 
+  if (stats.totalEntries === 0) {
+    return (
+      <div className="space-y-8">
+        <PageHeader
+          title="Dashboard"
+          description="Capture now, sort signal later, and avoid review-season archaeology."
+          action={
+            <Link href="/entries/new" className={buttonStyles({ size: "lg" })}>
+              Capture a new win
+            </Link>
+          }
+        />
+        <EmptyState
+          title="Nothing in the vault yet"
+          description="BragBook works best when you save evidence close to the work itself. Start with one recent accomplishment or load demo data to see how the system is meant to feel."
+          ctaHref="/entries/new"
+          ctaLabel="Create an entry"
+          secondaryCtaHref="/settings"
+          secondaryCtaLabel="Load demo entries"
+        />
+      </div>
+    );
+  }
+
+  const maxQuarterCount = Math.max(
+    ...stats.entriesByQuarter.map((quarter) => quarter.count),
+    1,
+  );
+
   return (
     <div className="space-y-8">
       <PageHeader
         title="Dashboard"
-        description="See your evidence pipeline at a glance, then jump into the entries that deserve cleanup before review season sneaks up again."
+        description="See your evidence pipeline at a glance, then tighten the entries that will matter most when review season shows up."
         action={
           <Link href="/entries/new" className={buttonStyles({ size: "lg" })}>
             Capture a new win
@@ -37,54 +72,47 @@ export function DashboardPage() {
         }
       />
 
-      <section className="grid gap-4 xl:grid-cols-[1.35fr_0.95fr]">
-        <Card className="rounded-[2rem]">
-          <CardHeader>
-            <CardTitle>Make your future self’s job easier</CardTitle>
-            <CardDescription>
-              BragBook is tuned for the awkward gap between doing strong work and needing crisp evidence months later.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-3">
-            <StatTile
-              label="Total entries"
-              value={stats.totalEntries}
-              helper="Moments with enough evidence to reuse."
-            />
-            <StatTile
-              label="Captured this quarter"
-              value={stats.entriesThisQuarter}
-              helper="Fresh material for reviews and checkpoints."
-              accent="Current quarter"
-            />
-            <StatTile
-              label="Recent updates"
-              value={stats.recentlyUpdated.length}
-              helper="Entries touched most recently."
-            />
-          </CardContent>
-        </Card>
+      <section className="grid gap-4 xl:grid-cols-4">
+        <StatTile
+          label="Total entries"
+          value={stats.totalEntries}
+          helper="Wins with reusable context and proof."
+        />
+        <StatTile
+          label="Captured this quarter"
+          value={stats.entriesThisQuarter}
+          helper="Fresh material for check-ins and reviews."
+          accent="Current quarter"
+        />
+        <StatTile
+          label="Strong proof"
+          value={stats.proofStrengthCounts.strong + stats.proofStrengthCounts.strongest}
+          helper="Entries with concrete evidence attached."
+        />
+        <StatTile
+          label="Strongest proof"
+          value={stats.proofStrengthCounts.strongest}
+          helper="Metric plus quote, screenshot, or artifact."
+        />
+      </section>
 
+      <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <Card className="rounded-[2rem]">
           <CardHeader>
-            <CardTitle>Proof mix</CardTitle>
+            <CardTitle>Entries by quarter</CardTitle>
             <CardDescription>
-              A balanced vault is easier to trust than a pile of anecdotes.
+              A compact view of when your strongest body of work is accumulating.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {proofTypeOptions.map((proofType) => {
-              const count = stats.proofTypeCounts[proofType];
-              const width =
-                stats.totalEntries === 0 ? 0 : (count / stats.totalEntries) * 100;
+            {stats.entriesByQuarter.map((quarter) => {
+              const width = (quarter.count / maxQuarterCount) * 100;
 
               return (
-                <div key={proofType} className="space-y-2">
+                <div key={quarter.key} className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-foreground">
-                      {proofTypeLabels[proofType]}
-                    </span>
-                    <span className="text-muted-foreground">{count}</span>
+                    <span className="font-medium text-foreground">{quarter.label}</span>
+                    <span className="text-muted-foreground">{quarter.count}</span>
                   </div>
                   <div className="h-2 rounded-full bg-muted/80">
                     <div
@@ -97,28 +125,56 @@ export function DashboardPage() {
             })}
           </CardContent>
         </Card>
+
+        <Card className="rounded-[2rem]">
+          <CardHeader>
+            <CardTitle>Common tags</CardTitle>
+            <CardDescription>
+              The themes that are showing up repeatedly in your saved accomplishments.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {stats.commonTags.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Add primary tags to unlock tag trends here.
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {stats.commonTags.map(({ tag, count }) => (
+                  <Badge key={tag} variant="subtle">
+                    {tag} ({count})
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </section>
 
       <section className="space-y-5">
         <SectionHeader
-          eyebrow="Recent evidence"
+          eyebrow="Recent work"
           title="Recently updated entries"
-          description="These are the freshest items in your vault and the easiest wins to refine next."
+          description="These are the easiest wins to finish polishing while the details are still easy to recover."
         />
-        {stats.recentlyUpdated.length === 0 ? (
-          <EmptyState
-            title="No entries yet"
-            description="Start with one accomplishment while the context is still vivid."
-            ctaHref="/entries/new"
-            ctaLabel="Create your first entry"
-          />
-        ) : (
-          <div className="grid gap-4 xl:grid-cols-2">
-            {stats.recentlyUpdated.map((entry) => (
-              <EntryCard key={entry.id} entry={entry} />
-            ))}
-          </div>
-        )}
+        <div className="grid gap-4 xl:grid-cols-2">
+          {stats.recentlyUpdated.map((entry) => (
+            <EntryCard key={entry.id} entry={entry} />
+          ))}
+        </div>
+      </section>
+
+      <section className="space-y-5">
+        <SectionHeader
+          eyebrow="Best backed-up work"
+          title="Strongest proof entries"
+          description="These entries already have the clearest proof posture and will travel best into reviews or promotion cases."
+        />
+        <div className="grid gap-4 xl:grid-cols-2">
+          {stats.strongestProofEntries.map((entry) => (
+            <EntryCard key={entry.id} entry={entry} />
+          ))}
+        </div>
       </section>
     </div>
   );

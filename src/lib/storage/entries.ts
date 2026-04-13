@@ -4,8 +4,10 @@ import { db, type EntryAssetRecord } from "@/lib/db/dexie";
 import {
   accomplishmentEntryInputSchema,
   accomplishmentEntrySchema,
+  type AccomplishmentEntry,
   type AccomplishmentEntryInput,
   type LocalImage,
+  type ProofItem,
 } from "@/lib/schemas/entry";
 import { createDemoEntries } from "@/lib/storage/demo-data";
 import {
@@ -20,14 +22,21 @@ export interface StorageSummary {
   lastUpdatedAt: string | null;
 }
 
-async function storeImageAsset(entryId: string, file: File): Promise<LocalImage> {
-  const assetId = crypto.randomUUID();
+export type ProofImageFileMap = Record<string, File | null | undefined>;
+
+async function storeImageAsset(
+  entryId: string,
+  proofItemId: string,
+  file: File,
+): Promise<LocalImage> {
+  const assetId = proofItemId;
   const createdAt = new Date().toISOString();
   const dimensions = await getImageDimensions(file);
 
   const asset: EntryAssetRecord = {
     id: assetId,
     entryId,
+    proofItemId,
     blob: file,
     name: file.name,
     mimeType: file.type || "application/octet-stream",
@@ -57,6 +66,70 @@ async function deleteAsset(assetId: string | null | undefined) {
   await db.entryAssets.delete(assetId);
 }
 
+async function deleteAssetsForEntry(entryId: string) {
+  const assetIds = await db.entryAssets.where("entryId").equals(entryId).primaryKeys();
+  await db.entryAssets.bulkDelete(assetIds);
+}
+
+async function hydrateProofItemsForCreate(
+  entryId: string,
+  proofItems: ProofItem[],
+  imageFiles: ProofImageFileMap,
+) {
+  const hydratedItems: ProofItem[] = [];
+
+  for (const proofItem of proofItems) {
+    const imageFile = imageFiles[proofItem.id] ?? null;
+    const localImage = imageFile
+      ? await storeImageAsset(entryId, proofItem.id, imageFile)
+      : proofItem.localImage;
+
+    hydratedItems.push({
+      ...proofItem,
+      localImage,
+    });
+  }
+
+  return hydratedItems;
+}
+
+async function hydrateProofItemsForUpdate(
+  entry: AccomplishmentEntry,
+  proofItems: ProofItem[],
+  imageFiles: ProofImageFileMap,
+) {
+  const existingProofMap = new Map(entry.proofItems.map((item) => [item.id, item]));
+  const nextProofIds = new Set(proofItems.map((item) => item.id));
+  const hydratedItems: ProofItem[] = [];
+
+  for (const proofItem of proofItems) {
+    const existingProofItem = existingProofMap.get(proofItem.id);
+    const imageFile = imageFiles[proofItem.id] ?? null;
+    let localImage = proofItem.localImage;
+
+    if (imageFile) {
+      await deleteAsset(existingProofItem?.localImage?.id);
+      localImage = await storeImageAsset(entry.id, proofItem.id, imageFile);
+    } else if (!proofItem.localImage && existingProofItem?.localImage) {
+      await deleteAsset(existingProofItem.localImage.id);
+      localImage = null;
+    }
+
+    hydratedItems.push({
+      ...proofItem,
+      localImage,
+    });
+  }
+
+  for (const existingProofItem of entry.proofItems) {
+    if (!nextProofIds.has(existingProofItem.id)) {
+      await deleteAsset(existingProofItem.localImage?.id);
+    }
+  }
+
+  return hydratedItems;
+}
+
 export async function listEntries() {
   return db.entries.orderBy("updatedAt").reverse().toArray();
 }
@@ -72,21 +145,21 @@ export async function getEntryAssetBlob(assetId: string) {
 
 export async function createEntry(
   input: AccomplishmentEntryInput,
-  imageFile?: File | null,
+  imageFiles: ProofImageFileMap = {},
 ) {
   const parsed = accomplishmentEntryInputSchema.parse(input);
   const timestamp = new Date().toISOString();
   const entryId = crypto.randomUUID();
-  let localImage = parsed.localImage;
-
-  if (imageFile) {
-    localImage = await storeImageAsset(entryId, imageFile);
-  }
+  const proofItems = await hydrateProofItemsForCreate(
+    entryId,
+    parsed.proofItems,
+    imageFiles,
+  );
 
   const entry = accomplishmentEntrySchema.parse({
     ...parsed,
     id: entryId,
-    localImage,
+    proofItems,
     createdAt: timestamp,
     updatedAt: timestamp,
   });
@@ -99,7 +172,7 @@ export async function createEntry(
 export async function updateEntry(
   id: string,
   input: AccomplishmentEntryInput,
-  imageFile?: File | null,
+  imageFiles: ProofImageFileMap = {},
 ) {
   const existing = await getEntry(id);
 
@@ -108,21 +181,17 @@ export async function updateEntry(
   }
 
   const parsed = accomplishmentEntryInputSchema.parse(input);
-  let localImage = parsed.localImage;
-
-  if (imageFile) {
-    await deleteAsset(existing.localImage?.id);
-    localImage = await storeImageAsset(id, imageFile);
-  } else if (!parsed.localImage && existing.localImage) {
-    await deleteAsset(existing.localImage.id);
-    localImage = null;
-  }
+  const proofItems = await hydrateProofItemsForUpdate(
+    existing,
+    parsed.proofItems,
+    imageFiles,
+  );
 
   const updated = accomplishmentEntrySchema.parse({
     ...existing,
     ...parsed,
     id,
-    localImage,
+    proofItems,
     updatedAt: new Date().toISOString(),
   });
 
@@ -132,11 +201,9 @@ export async function updateEntry(
 }
 
 export async function deleteEntry(id: string) {
-  const entry = await getEntry(id);
-
   await db.transaction("rw", db.entries, db.entryAssets, async () => {
     await db.entries.delete(id);
-    await deleteAsset(entry?.localImage?.id);
+    await deleteAssetsForEntry(id);
   });
 }
 

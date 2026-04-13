@@ -79,3 +79,17 @@ export function getQuarterStart(date = new Date()) {
 
   return new Date(date.getFullYear(), quarterStartMonth, 1);
 }
+
+export function getQuarterNumber(date = new Date()) {
+  return Math.floor(date.getMonth() / 3) + 1;
+}
+
+export function getQuarterSortKey(date: string | Date) {
+  const resolvedDate = typeof date === "string" ? new Date(date) : date;
+  return `${resolvedDate.getFullYear()}-Q${getQuarterNumber(resolvedDate)}`;
+}
+
+export function getQuarterLabel(date: string | Date) {
+  const resolvedDate = typeof date === "string" ? new Date(date) : date;
+  return `Q${getQuarterNumber(resolvedDate)} ${resolvedDate.getFullYear()}`;
+}
