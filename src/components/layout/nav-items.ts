@@ -18,6 +18,12 @@ export const navigationItems = [
     description: "Capture a win while details are fresh.",
   },
   {
+    href: "/generator",
+    label: "Generator",
+    shortLabel: "Drafts",
+    description: "Turn selected evidence into editable review, promo, resume, or interview drafts.",
+  },
+  {
     href: "/settings",
     label: "Settings",
     shortLabel: "Settings",

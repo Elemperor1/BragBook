@@ -92,7 +92,7 @@ export function SettingsPage() {
           <CardHeader>
             <CardTitle>About this MVP</CardTitle>
             <CardDescription>
-              The generator layer is already wired internally for self-reviews, promotion cases, resume bullets, and STAR stories.
+              The generator now produces local-first self-reviews, promotion cases, resume bullets, and STAR stories from saved entries.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-7 text-muted-foreground">
