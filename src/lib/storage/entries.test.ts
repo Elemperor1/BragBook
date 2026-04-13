@@ -17,6 +17,7 @@ import {
   seedDemoData,
   updateEntry,
 } from "@/lib/storage/entries";
+import { createBackup, parseBackupJson, restoreBackup } from "@/lib/storage/backup";
 
 describe("entry storage", () => {
   const baseEntry: AccomplishmentEntryInput = {
@@ -125,6 +126,65 @@ describe("entry storage", () => {
     expect(stats.totalEntries).toBeGreaterThan(0);
     expect(stats.recentlyUpdated.length).toBeGreaterThan(0);
     expect(stats.strongestProofEntries.length).toBeGreaterThan(0);
+  });
+
+  it("exports and restores a backup with inline screenshot assets", async () => {
+    const imageFile = new File(["demo"], "proof.png", { type: "image/png" });
+    const created = await createEntry(
+      {
+        ...baseEntry,
+        proofItems: [
+          {
+            id: "proof-backup-image",
+            type: "screenshot",
+            title: "Dashboard capture",
+            summary: "The workflow after the reliability fix.",
+            link: null,
+            metric: null,
+            localImage: {
+              id: "proof-backup-image",
+              name: "proof.png",
+              mimeType: "image/png",
+              size: imageFile.size,
+              createdAt: new Date().toISOString(),
+            },
+          },
+        ],
+      },
+      { "proof-backup-image": imageFile },
+    );
+
+    const backup = await createBackup();
+    expect(backup.entries).toHaveLength(1);
+    expect(backup.imageAssets).toHaveLength(1);
+    expect(backup.imageAssets[0]?.dataUrl.startsWith("data:image/png;base64,")).toBe(true);
+
+    await clearAllData();
+    await restoreBackup(backup);
+
+    const restored = await getEntry(created.id);
+    const restoredBlob = await getEntryAssetBlob("proof-backup-image");
+    const restoredAsset = await db.entryAssets.get("proof-backup-image");
+
+    expect(restored?.title).toBe(created.title);
+    expect(restored?.proofItems[0]?.localImage?.id).toBe("proof-backup-image");
+    expect(restoredBlob).not.toBeNull();
+    expect(restoredAsset?.mimeType).toBe("image/png");
+    expect(restoredAsset?.size).toBe(imageFile.size);
+  });
+
+  it("rejects invalid backup files", () => {
+    expect(() =>
+      parseBackupJson(
+        JSON.stringify({
+          format: "wrong-format",
+          schemaVersion: 1,
+          exportedAt: new Date().toISOString(),
+          entries: [],
+          imageAssets: [],
+        }),
+      ),
+    ).toThrow();
   });
 
   it("migrates legacy entries and image assets", async () => {

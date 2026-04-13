@@ -49,4 +49,20 @@ describe("EntriesPage", () => {
     await user.click(screen.getByRole("button", { name: "Reset filters" }));
     expect(screen.getByText("Showing 4 of 4 entries.")).toBeInTheDocument();
   });
+
+  it("shows the upgraded first-run empty state when no entries exist", () => {
+    mockEntries = [];
+
+    render(<EntriesPage />);
+
+    expect(
+      screen.getByText("Start your evidence vault before you need it"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Load sample entries")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Store a metric, artifact, or screenshot so the entry holds up months later.",
+      ),
+    ).toBeInTheDocument();
+  });
 });

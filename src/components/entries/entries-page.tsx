@@ -7,6 +7,7 @@ import { EntryCard } from "@/components/entries/entry-card";
 import { PageHeader } from "@/components/layout/page-header";
 import { buttonStyles } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useEntries } from "@/hooks/use-entry";
 import {
   buildEntryFilterOptions,
@@ -41,15 +42,46 @@ export function EntriesPage() {
       />
 
       {!entries || !filterOptions || !filteredEntries ? (
-        <p className="text-sm text-muted-foreground">Loading entries…</p>
+        <div className="space-y-6">
+          <div className="rounded-[2rem] border border-white/70 bg-white/72 p-5">
+            <div className="grid gap-3 md:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="space-y-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-11 w-full rounded-2xl" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="grid gap-4 xl:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={index}
+                className="rounded-[2rem] border border-white/70 bg-white/72 p-6"
+              >
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-7 w-4/5" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       ) : entries.length === 0 ? (
         <EmptyState
+          eyebrow="Evidence capture"
           title="Start your evidence vault before you need it"
-          description="Capture one meaningful win now and BragBook turns it into something you can reuse for reviews, promo packets, and project recaps later."
+          description="Capture one meaningful win now and BragBook turns it into reusable proof for reviews, promotion packets, project recaps, and interview stories later."
+          supportingPoints={[
+            "Store a metric, artifact, or screenshot so the entry holds up months later.",
+            "Use tags and stakeholders now so future drafts can group work by impact, scope, and theme.",
+          ]}
           ctaHref="/entries/new"
           ctaLabel="Capture your first entry"
           secondaryCtaHref="/settings"
-          secondaryCtaLabel="Load demo entries"
+          secondaryCtaLabel="Load sample entries"
         />
       ) : (
         <div className="space-y-6">

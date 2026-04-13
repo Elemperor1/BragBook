@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useEntry } from "@/hooks/use-entry";
 import {
   proofItemTypeLabels,
@@ -131,6 +132,25 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
           title="Entry"
           description="Loading the selected accomplishment."
         />
+        <Card className="rounded-[2rem]">
+          <CardHeader>
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-10 w-full rounded-2xl" />
+            <div className="grid gap-4 xl:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="rounded-[1.75rem] border border-border p-5">
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="mt-3 h-4 w-full" />
+                  <Skeleton className="mt-2 h-4 w-3/4" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

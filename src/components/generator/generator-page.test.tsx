@@ -95,4 +95,20 @@ describe("GeneratorPage", () => {
     await user.click(screen.getByRole("button", { name: "Copy" }));
     await screen.findByText("Draft copied to the clipboard.");
   });
+
+  it("shows the upgraded empty state when no entries are available", () => {
+    mockEntries = [];
+
+    render(<GeneratorPage />);
+
+    expect(
+      screen.getByText("No entries available to generate from"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Load sample entries")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Structured proof is what lets the same entry become a self-review paragraph, resume bullet, or STAR story.",
+      ),
+    ).toBeInTheDocument();
+  });
 });

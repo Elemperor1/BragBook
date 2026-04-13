@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { SectionHeader } from "@/components/ui/section-header";
 import { StatTile } from "@/components/ui/stat-tile";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
@@ -27,6 +28,37 @@ export function DashboardPage() {
           title="Dashboard"
           description="Loading your local accomplishment vault."
         />
+        <section className="grid gap-4 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Card key={index} className="rounded-[2rem]">
+              <CardHeader>
+                <Skeleton className="h-4 w-28" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Skeleton className="h-10 w-20" />
+                <Skeleton className="h-4 w-36" />
+              </CardContent>
+            </Card>
+          ))}
+        </section>
+        <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+          {Array.from({ length: 2 }).map((_, index) => (
+            <Card key={index} className="rounded-[2rem]">
+              <CardHeader>
+                <Skeleton className="h-5 w-40" />
+                <Skeleton className="h-4 w-56" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {Array.from({ length: 4 }).map((__, rowIndex) => (
+                  <div key={rowIndex} className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-2 w-full rounded-full" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ))}
+        </section>
       </div>
     );
   }
@@ -44,12 +76,18 @@ export function DashboardPage() {
           }
         />
         <EmptyState
+          eyebrow="First launch"
           title="Nothing in the vault yet"
-          description="BragBook works best when you save evidence close to the work itself. Start with one recent accomplishment or load demo data to see how the system is meant to feel."
+          description="BragBook works best when you save evidence close to the work itself. Start with one recent accomplishment or load sample entries to see the intended workflow."
+          supportingPoints={[
+            "Capture the situation, action, result, and proof while details are still fresh.",
+            "Attach metrics, praise, screenshots, and artifacts so future drafts are easier to trust.",
+          ]}
+          note="Structured proof now makes self-reviews, promotion cases, and interview stories dramatically easier later."
           ctaHref="/entries/new"
           ctaLabel="Create an entry"
           secondaryCtaHref="/settings"
-          secondaryCtaLabel="Load demo entries"
+          secondaryCtaLabel="Load sample entries"
         />
       </div>
     );

@@ -18,6 +18,7 @@ import {
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useEntries } from "@/hooks/use-entry";
 import {
@@ -225,6 +226,43 @@ export function GeneratorPage() {
           title="Generator"
           description="Loading your saved evidence so you can turn it into review, promotion, resume, or interview drafts."
         />
+        <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+          <section className="space-y-5">
+            <div className="rounded-[2rem] border border-white/70 bg-white/72 p-5">
+              <div className="grid gap-3 md:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-11 w-full rounded-2xl" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-[2rem] border border-white/70 bg-white/72 p-6">
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-40" />
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="rounded-[1.75rem] border border-border p-5">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="mt-3 h-4 w-full" />
+                    <Skeleton className="mt-2 h-4 w-2/3" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+          <Card className="rounded-[2rem]">
+            <CardHeader>
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 w-60" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Skeleton className="h-11 w-full rounded-2xl" />
+              <Skeleton className="h-11 w-full rounded-2xl" />
+              <Skeleton className="h-80 w-full rounded-[1.75rem]" />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -237,12 +275,17 @@ export function GeneratorPage() {
           description="Select saved accomplishments, choose a tone, and turn evidence into editable output."
         />
         <EmptyState
+          eyebrow="Draft generation"
           title="No entries available to generate from"
-          description="Capture at least one accomplishment before opening the generator. The output quality depends on the structured evidence saved in each entry."
+          description="Capture at least one accomplishment before opening the generator. Output quality improves when the entry includes situation, result, metrics, and concrete proof."
+          supportingPoints={[
+            "A metric, screenshot, quote, or artifact makes generated drafts feel more credible.",
+            "Structured proof is what lets the same entry become a self-review paragraph, resume bullet, or STAR story.",
+          ]}
           ctaHref="/entries/new"
           ctaLabel="Capture your first entry"
           secondaryCtaHref="/settings"
-          secondaryCtaLabel="Load demo entries"
+          secondaryCtaLabel="Load sample entries"
         />
       </div>
     );

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
@@ -9,10 +10,15 @@ interface DialogProps {
   open: boolean;
   onClose: () => void;
   title: string;
-  description: string;
+  description?: string;
   confirmLabel?: string;
+  cancelLabel?: string;
   confirmVariant?: "primary" | "danger";
-  onConfirm: () => void;
+  confirmDisabled?: boolean;
+  isBusy?: boolean;
+  children?: ReactNode;
+  footer?: ReactNode;
+  onConfirm?: () => void;
 }
 
 export function Dialog({
@@ -21,7 +27,12 @@ export function Dialog({
   title,
   description,
   confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
   confirmVariant = "primary",
+  confirmDisabled = false,
+  isBusy = false,
+  children,
+  footer,
   onConfirm,
 }: DialogProps) {
   useEffect(() => {
@@ -52,19 +63,34 @@ export function Dialog({
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#120f0b]/45 px-4 backdrop-blur-sm">
       <div className="absolute inset-0" onClick={onClose} />
-      <Card className="relative z-10 w-full max-w-md rounded-[2rem] border border-white/85">
+      <Card
+        role="dialog"
+        aria-modal="true"
+        className="relative z-10 w-full max-w-md rounded-[2rem] border border-white/85"
+      >
         <CardHeader>
           <CardTitle>{title}</CardTitle>
-          <CardDescription>{description}</CardDescription>
+          {description ? <CardDescription>{description}</CardDescription> : null}
         </CardHeader>
-        <CardContent className="flex justify-end gap-3">
-          <Button variant="ghost" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button variant={confirmVariant} onClick={onConfirm}>
-            {confirmLabel}
-          </Button>
-        </CardContent>
+        {children ? <CardContent className="space-y-4 pt-0">{children}</CardContent> : null}
+        {footer ? (
+          <CardContent className="flex flex-wrap justify-end gap-3 pt-0">
+            {footer}
+          </CardContent>
+        ) : (
+          <CardContent className="flex justify-end gap-3 pt-0">
+            <Button variant="ghost" disabled={isBusy} onClick={onClose}>
+              {cancelLabel}
+            </Button>
+            <Button
+              variant={confirmVariant}
+              disabled={isBusy || confirmDisabled || !onConfirm}
+              onClick={onConfirm}
+            >
+              {confirmLabel}
+            </Button>
+          </CardContent>
+        )}
       </Card>
     </div>,
     document.body,

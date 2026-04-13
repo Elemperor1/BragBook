@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Manrope } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { AppBootstrap } from "@/components/layout/app-bootstrap";
-import { AppShell } from "@/components/layout/app-shell";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -24,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | BragBook",
   },
   description:
-    "A local-first evidence vault for software engineers to capture wins, proof, and promotion-ready stories.",
+    "Capture proof of your work and turn it into promotion packets, self-reviews, resume bullets, and interview stories.",
 };
 
 export default function RootLayout({
@@ -38,8 +36,7 @@ export default function RootLayout({
       className={`${manrope.variable} ${jetbrainsMono.variable} h-full`}
     >
       <body className="min-h-full">
-        <AppBootstrap />
-        <AppShell>{children}</AppShell>
+        {children}
         <Analytics />
         <SpeedInsights />
       </body>
