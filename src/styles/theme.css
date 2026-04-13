@@ -1,0 +1,93 @@
+:root {
+  --background: #f3efe8;
+  --foreground: #1d1a17;
+  --panel: rgba(255, 255, 255, 0.72);
+  --panel-strong: rgba(255, 255, 255, 0.9);
+  --panel-muted: rgba(245, 241, 235, 0.7);
+  --card: rgba(255, 255, 255, 0.84);
+  --card-foreground: #211d19;
+  --border: rgba(98, 84, 68, 0.14);
+  --border-strong: rgba(98, 84, 68, 0.24);
+  --muted: #ede7df;
+  --muted-foreground: #675f56;
+  --accent: #7e6b55;
+  --accent-foreground: #faf7f2;
+  --accent-soft: rgba(126, 107, 85, 0.12);
+  --success: #2d6b57;
+  --warning: #7b5c24;
+  --danger: #a44d3f;
+  --shadow: 0 16px 40px rgba(43, 34, 24, 0.09);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-panel: var(--panel);
+  --color-panel-strong: var(--panel-strong);
+  --color-panel-muted: var(--panel-muted);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-manrope);
+  --font-mono: var(--font-jetbrains-mono);
+  --radius-card: 1.5rem;
+  --radius-pill: 999px;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply bg-background text-foreground scroll-smooth;
+  }
+
+  body {
+    @apply min-h-screen font-sans text-foreground antialiased;
+    background:
+      radial-gradient(circle at top left, rgba(194, 181, 163, 0.26), transparent 24rem),
+      radial-gradient(circle at top right, rgba(126, 107, 85, 0.1), transparent 20rem),
+      linear-gradient(180deg, #f6f3ee 0%, #f1ece4 100%);
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+  }
+
+  ::selection {
+    background: rgba(126, 107, 85, 0.18);
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .shell-panel {
+    background: var(--panel);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(20px);
+  }
+
+  .shell-card {
+    background: var(--card);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(16px);
+  }
+
+  .field-surface {
+    @apply rounded-2xl border border-border bg-white/75 shadow-sm;
+  }
+
+  .fine-border {
+    @apply border border-border/80;
+  }
+}
