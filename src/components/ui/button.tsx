@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { cn } from "@/lib/utils/cn";
 
@@ -8,19 +6,19 @@ type ButtonSize = "sm" | "md" | "lg";
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-accent text-accent-foreground shadow-sm hover:bg-[#6f5d49] focus-visible:ring-accent/40",
+    "border-black/5 bg-ink text-ink-foreground shadow-[var(--shadow-card)] hover:-translate-y-0.5 hover:bg-[#241d18] focus-visible:ring-ink/20",
   secondary:
-    "bg-white/80 text-foreground shadow-sm ring-1 ring-border hover:bg-white focus-visible:ring-accent/20",
+    "bg-white/95 text-foreground shadow-[0_12px_24px_rgba(23,19,16,0.08)] ring-1 ring-border-strong hover:-translate-y-0.5 hover:bg-[#fffaf3] focus-visible:ring-accent/20",
   ghost:
-    "bg-transparent text-muted-foreground hover:bg-white/60 hover:text-foreground focus-visible:ring-accent/20",
+    "bg-transparent text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground focus-visible:ring-accent/20",
   danger:
-    "bg-danger text-white shadow-sm hover:bg-[#903e31] focus-visible:ring-danger/30",
+    "bg-danger text-white shadow-[0_14px_28px_rgba(156,68,57,0.2)] hover:-translate-y-0.5 hover:bg-[#87362d] focus-visible:ring-danger/25",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
   sm: "h-10 px-4 text-sm",
   md: "h-11 px-5 text-sm",
-  lg: "h-12 px-6 text-base",
+  lg: "h-12 px-6 text-[15px]",
 };
 
 export function buttonStyles({
@@ -33,7 +31,7 @@ export function buttonStyles({
   className?: string;
 } = {}) {
   return cn(
-    "inline-flex items-center justify-center rounded-full font-medium transition duration-200 focus-visible:outline-none focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex items-center justify-center rounded-[1rem] border font-semibold tracking-[-0.01em] transition duration-200 focus-visible:outline-none focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50",
     variantStyles[variant],
     sizeStyles[size],
     className,

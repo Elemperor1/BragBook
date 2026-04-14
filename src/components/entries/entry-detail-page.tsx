@@ -43,7 +43,7 @@ function DetailSection({
   body: string | null;
 }) {
   return (
-    <Card>
+    <Card variant="quiet">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
@@ -69,10 +69,10 @@ function ProofItemCard({ entry }: { entry: AccomplishmentEntry }) {
   return (
     <div className="space-y-4">
       {entry.proofItems.map((proofItem) => (
-        <Card key={proofItem.id} className="rounded-[1.75rem]">
+        <Card key={proofItem.id} variant="document" className="rounded-[1.75rem]">
           <CardHeader>
             <div className="flex flex-wrap items-center gap-3">
-              <Badge variant="subtle">{proofItemTypeLabels[proofItem.type]}</Badge>
+              <Badge variant="selected">{proofItemTypeLabels[proofItem.type]}</Badge>
               {proofItem.title ? (
                 <p className="text-sm font-medium text-foreground">{proofItem.title}</p>
               ) : null}
@@ -133,8 +133,9 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
         <PageHeader
           title="Entry"
           description="Loading the selected accomplishment."
+          eyebrow="Evidence detail"
         />
-        <Card className="rounded-[2rem]">
+        <Card variant="elevated" className="rounded-[2rem]">
           <CardHeader>
             <Skeleton className="h-6 w-40" />
             <Skeleton className="h-4 w-64" />
@@ -163,6 +164,7 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
         <PageHeader
           title="Entry not found"
           description="The item you were looking for may have been deleted from this browser."
+          eyebrow="Evidence detail"
         />
         <EmptyState
           title="No matching entry"
@@ -195,6 +197,7 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
       <PageHeader
         title={entry.title}
         description="Review the narrative and supporting proof, or switch into edit mode to tighten the record."
+        eyebrow="Evidence detail"
         action={
           <div className="flex flex-wrap gap-3">
             {isEditing ? null : (
@@ -219,7 +222,7 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
         />
       ) : (
         <>
-          <Card className="rounded-[2rem]">
+          <Card variant="elevated" className="rounded-[2rem]">
             <CardHeader>
               <CardTitle>Evidence summary</CardTitle>
               <CardDescription>
@@ -230,11 +233,13 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
               <EntryMetadataStrip entry={entry} />
               <div className="flex flex-wrap items-center gap-3">
                 <ProofStrengthBadge entry={entry} />
-                <Badge variant="subtle">{proofMeta.description}</Badge>
+                <Badge variant="selected">{proofMeta.description}</Badge>
               </div>
               <div className="flex flex-wrap gap-2">
                 {entry.tags.map((tag) => (
-                  <Badge key={tag}>{tag}</Badge>
+                  <Badge key={tag} variant="selected">
+                    {tag}
+                  </Badge>
                 ))}
                 {entry.seniorityTags.map((tag) => (
                   <Badge key={tag} variant="subtle">
@@ -251,7 +256,7 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
           </Card>
 
           <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-            <Card>
+            <Card variant="elevated">
               <CardHeader>
                 <CardTitle>Supporting proof</CardTitle>
                 <CardDescription>
@@ -270,7 +275,7 @@ export function EntryDetailPage({ entryId }: { entryId: string }) {
             </Card>
 
             <div className="space-y-4">
-              <Card>
+              <Card variant="quiet">
                 <CardHeader>
                   <CardTitle>Stakeholders</CardTitle>
                 </CardHeader>

@@ -1,30 +1,59 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils/cn";
 
 export function StatTile({
   label,
   value,
   helper,
   accent,
+  variant = "default",
+  className,
 }: {
   label: string;
   value: string | number;
   helper?: string;
   accent?: string;
+  variant?: "default" | "lead";
+  className?: string;
 }) {
+  const isLead = variant === "lead";
+
   return (
-    <Card className="rounded-[1.75rem]">
+    <Card
+      variant={isLead ? "feature" : "default"}
+      className={cn("rounded-[1.5rem]", className)}
+    >
       <CardContent className="space-y-4 pt-6">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-medium text-muted-foreground">{label}</p>
-          {accent ? <Badge variant="subtle">{accent}</Badge> : null}
+          <p
+            className={cn(
+              "text-sm font-medium",
+              isLead ? "text-[#d8cbb8]" : "text-muted-foreground",
+            )}
+          >
+            {label}
+          </p>
+          {accent ? <Badge variant={isLead ? "feature" : "selected"}>{accent}</Badge> : null}
         </div>
         <div className="space-y-1">
-          <p className="text-3xl font-semibold tracking-tight text-foreground">
+          <p
+            className={cn(
+              "text-[2.4rem] font-semibold tracking-[-0.05em]",
+              isLead ? "text-[#fff8ef]" : "text-foreground",
+            )}
+          >
             {value}
           </p>
           {helper ? (
-            <p className="text-sm leading-6 text-muted-foreground">{helper}</p>
+            <p
+              className={cn(
+                "text-sm leading-6",
+                isLead ? "text-[#d8cbb8]" : "text-muted-foreground",
+              )}
+            >
+              {helper}
+            </p>
           ) : null}
         </div>
       </CardContent>

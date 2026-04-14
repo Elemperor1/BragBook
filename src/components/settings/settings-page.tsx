@@ -105,10 +105,11 @@ export function SettingsPage() {
       <PageHeader
         title="Settings"
         description="Trustworthy browser-local controls for backups, demo entries, and a clear explanation of how storage works."
+        eyebrow="Storage operations"
       />
 
       <section className="grid gap-4 xl:grid-cols-3">
-        <Card>
+        <Card variant="elevated">
           <CardHeader>
             <CardTitle>Entries</CardTitle>
             <CardDescription>Total accomplishment records stored in this browser.</CardDescription>
@@ -122,7 +123,7 @@ export function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card variant="default">
           <CardHeader>
             <CardTitle>Stored images</CardTitle>
             <CardDescription>Attached screenshots or visual artifacts stored in IndexedDB.</CardDescription>
@@ -136,7 +137,7 @@ export function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card variant="quiet">
           <CardHeader>
             <CardTitle>Last updated</CardTitle>
             <CardDescription>Most recent evidence activity in this browser.</CardDescription>
@@ -156,7 +157,7 @@ export function SettingsPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <Card>
+        <Card variant="elevated">
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="space-y-2">
@@ -166,7 +167,7 @@ export function SettingsPage() {
                   clear the browser data on this device.
                 </CardDescription>
               </div>
-              <Badge variant="subtle">Browser-local</Badge>
+              <Badge variant="selected">Browser-local</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -209,16 +210,16 @@ export function SettingsPage() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4">
+              <div className="surface-quiet rounded-[1.5rem] border border-border px-4 py-4">
                 <p className="text-sm font-medium text-foreground">Backup scope</p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   Exports include entries, metrics, proof metadata, and locally stored screenshot
                   images in one JSON file.
                 </p>
               </div>
-              <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4">
+              <div className="surface-quiet rounded-[1.5rem] border border-border px-4 py-4">
                 <p className="text-sm font-medium text-foreground">Restore behavior</p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   Import replaces the current browser data. It does not merge with existing data.
                 </p>
               </div>
@@ -246,15 +247,15 @@ export function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card variant="feature">
           <CardHeader>
-            <CardTitle>How local storage works</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-[#f7f1e8]">How local storage works</CardTitle>
+            <CardDescription className="text-[#cfbea9]">
               BragBook stores data in IndexedDB in this browser. There is no account, sync, billing,
               or backend fallback.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-7 text-muted-foreground">
+          <CardContent className="space-y-3 text-sm leading-7 text-[#cfbea9]">
             <p>Your entries stay on this device and inside this browser profile by default.</p>
             <p>
               Clearing site data, reinstalling the browser, switching browsers, or using a fresh
@@ -264,7 +265,7 @@ export function SettingsPage() {
               Demo entries are optional and meant for walkthroughs. They can be loaded now and
               removed later.
             </p>
-            <div className="rounded-[1.5rem] border border-warning/30 bg-warning/10 px-4 py-4 text-foreground">
+            <div className="rounded-[1.5rem] border border-warning/30 bg-warning/10 px-4 py-4 text-[#f7f1e8]">
               Export a backup before browser cleanup or device changes if the stored proof matters.
             </div>
           </CardContent>
@@ -336,7 +337,7 @@ export function SettingsPage() {
       >
         {pendingImport ? (
           <div className="space-y-3">
-            <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4">
+            <div className="surface-quiet rounded-[1.5rem] border border-border px-4 py-4">
               <p className="text-sm font-medium text-foreground">
                 {pendingImportName ?? "Selected backup"}
               </p>
@@ -345,7 +346,7 @@ export function SettingsPage() {
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4">
+              <div className="surface-quiet rounded-[1.5rem] border border-border px-4 py-4">
                 <p className="text-sm font-medium text-foreground">
                   {pendingImport.entries.length} entries
                 </p>
@@ -353,7 +354,7 @@ export function SettingsPage() {
                   Structured wins, tags, metrics, and proof metadata
                 </p>
               </div>
-              <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4">
+              <div className="surface-quiet rounded-[1.5rem] border border-border px-4 py-4">
                 <p className="text-sm font-medium text-foreground">
                   {pendingImport.imageAssets.length} image assets
                 </p>

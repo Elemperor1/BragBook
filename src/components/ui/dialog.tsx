@@ -112,6 +112,7 @@ export function Dialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
+        variant="elevated"
         className="relative z-10 w-full max-w-md rounded-[2rem] border border-white/85"
       >
         <CardHeader>

@@ -105,6 +105,7 @@ function SectionCard({
   isOpen,
   onToggle,
   children,
+  variant = "default",
 }: {
   id: SectionId;
   title: string;
@@ -112,11 +113,12 @@ function SectionCard({
   isOpen: boolean;
   onToggle: (sectionId: SectionId) => void;
   children: ReactNode;
+  variant?: "default" | "quiet" | "elevated";
 }) {
   const contentId = useId();
 
   return (
-    <Card className="rounded-[2rem]">
+    <Card variant={variant} className="rounded-[2rem]">
       <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
           <CardTitle>{title}</CardTitle>
@@ -179,7 +181,7 @@ function ProofItemEditor({
   const imageError = errorFor(`proofItems.${index}.localImage`);
 
   return (
-    <div className="space-y-4 rounded-[1.75rem] border border-border bg-white/70 p-5">
+    <div className="surface-quiet space-y-4 rounded-[1.75rem] border border-border p-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <p className="text-sm font-medium text-foreground">Proof item</p>
@@ -312,7 +314,7 @@ function ProofItemEditor({
               id={imageId}
               type="file"
               accept="image/*"
-              className="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2.5 file:font-medium file:text-accent-foreground"
+              className="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-[1rem] file:border-0 file:bg-ink file:px-4 file:py-2.5 file:font-medium file:text-ink-foreground"
               onChange={(event) => onSelectImage(item.id, event.target.files?.[0] ?? null)}
             />
             <ProofImagePreview
@@ -587,6 +589,7 @@ export function EntryForm({
         description="Start with enough context to identify the win later."
         isOpen={openSections.basic}
         onToggle={toggleSection}
+        variant="quiet"
       >
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-2 md:col-span-2">
@@ -647,6 +650,7 @@ export function EntryForm({
         description="What made this work matter?"
         isOpen={openSections.situation}
         onToggle={toggleSection}
+        variant="quiet"
       >
         <div className="space-y-2">
           <label htmlFor="entry-situation" className="text-sm font-medium text-foreground">
@@ -667,6 +671,7 @@ export function EntryForm({
         description="What did you personally drive?"
         isOpen={openSections.action}
         onToggle={toggleSection}
+        variant="quiet"
       >
         <div className="space-y-2">
           <label htmlFor="entry-action" className="text-sm font-medium text-foreground">
@@ -687,6 +692,7 @@ export function EntryForm({
         description="Capture the outcome first. You can polish wording later."
         isOpen={openSections.result}
         onToggle={toggleSection}
+        variant="default"
       >
         <div className="space-y-5">
           <div className="space-y-2">
@@ -720,8 +726,9 @@ export function EntryForm({
         description="Save the evidence now so future review writing is fast."
         isOpen={openSections.proof}
         onToggle={toggleSection}
+        variant="elevated"
       >
-        <Card className="rounded-[1.75rem] border border-border bg-white/65">
+        <Card variant="quiet" className="rounded-[1.75rem]">
           <CardContent className="flex flex-col gap-4 pt-6 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
               <ProofStrengthBadge entry={buildValidationPayload(values, imageFiles)} />
@@ -751,7 +758,7 @@ export function EntryForm({
         </div>
 
         {values.proofItems.length === 0 ? (
-          <div className="rounded-[1.75rem] border border-dashed border-border-strong/70 bg-white/55 px-5 py-6 text-sm leading-6 text-muted-foreground">
+          <div className="rounded-[1.75rem] border border-dashed border-border-strong/70 bg-white/65 px-5 py-6 text-sm leading-6 text-muted-foreground">
             Start with the easiest thing you already have: a quote, a release note, a metric, or a link.
           </div>
         ) : (
@@ -780,6 +787,7 @@ export function EntryForm({
         description="Keep structure light by default. Add more only if it helps later filtering or storytelling."
         isOpen={openSections.tags}
         onToggle={toggleSection}
+        variant="quiet"
       >
         <div className="space-y-5">
           <PillInput
@@ -791,7 +799,7 @@ export function EntryForm({
             placeholder="reliability, launches, mentoring"
           />
 
-          <div className="space-y-3 rounded-[1.5rem] border border-border bg-white/60 p-4">
+          <div className="space-y-3 rounded-[1.5rem] border border-border bg-white/75 p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="space-y-1">
                 <p className="text-sm font-medium text-foreground">More structure</p>
@@ -845,7 +853,7 @@ export function EntryForm({
         <p className="text-sm text-danger">{errors.form}</p>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[2rem] border border-border bg-white/60 px-5 py-4">
+      <div className="surface-elevated flex flex-wrap items-center justify-between gap-3 rounded-[2rem] border border-border px-5 py-4">
         <p className="text-sm leading-6 text-muted-foreground">
           Capture the core now. You can keep refining the language after the evidence is safe.
         </p>

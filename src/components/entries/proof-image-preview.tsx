@@ -20,14 +20,14 @@ export function ProofImagePreview({
 
   if (!image && !previewUrl) {
     return (
-      <div className="rounded-[1.5rem] border border-dashed border-border-strong/70 bg-white/50 px-4 py-6 text-sm leading-6 text-muted-foreground">
+      <div className="rounded-[1.5rem] border border-dashed border-border-strong/70 bg-white/65 px-4 py-6 text-sm leading-6 text-muted-foreground">
         No local image attached.
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-[1.75rem] border border-border bg-white/75">
+    <div className="surface-document overflow-hidden rounded-[1.75rem] border border-border">
       {source ? (
         <div className="relative h-64 w-full">
           <Image

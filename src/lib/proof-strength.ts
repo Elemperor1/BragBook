@@ -7,7 +7,7 @@ export const proofStrengthMeta: Record<
     filterLabel: string;
     description: string;
     rubric: string;
-    variant: "default" | "subtle" | "success" | "warning";
+    variant: "default" | "subtle" | "accent" | "success" | "warning";
   }
 > = {
   weak: {
@@ -36,7 +36,7 @@ export const proofStrengthMeta: Record<
     filterLabel: "Strongest proof",
     description: "A metric is paired with a concrete artifact, quote, or screenshot.",
     rubric: "A metric plus a concrete artifact, quote, or screenshot.",
-    variant: "default",
+    variant: "accent",
   },
 };
 

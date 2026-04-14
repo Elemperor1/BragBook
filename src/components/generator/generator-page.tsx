@@ -77,10 +77,11 @@ function SelectableEntryCard({
 }) {
   return (
     <Card
+      variant={checked ? "elevated" : "default"}
       className={
         checked
-          ? "rounded-[1.75rem] border-border-strong bg-white transition hover:-translate-y-0.5"
-          : "rounded-[1.75rem] bg-white/85 transition hover:-translate-y-0.5"
+          ? "rounded-[1.75rem] border-accent/35 ring-1 ring-accent/20 transition hover:-translate-y-0.5"
+          : "rounded-[1.75rem] transition hover:-translate-y-0.5 hover:border-border-strong"
       }
     >
       <CardContent className="space-y-4 pt-6">
@@ -106,7 +107,7 @@ function SelectableEntryCard({
             className={`mt-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${
               checked
                 ? "border-accent bg-accent text-accent-foreground"
-                : "border-border bg-white/70 text-muted-foreground"
+                : "border-border bg-white/90 text-muted-foreground"
             }`}
           >
             {checked ? "✓" : ""}
@@ -269,10 +270,11 @@ export function GeneratorPage() {
         <PageHeader
           title="Generator"
           description="Loading your saved evidence so you can turn it into review, promotion, resume, or interview drafts."
+          eyebrow="Draft workspace"
         />
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
           <section className="space-y-5">
-            <div className="rounded-[2rem] border border-white/70 bg-white/72 p-5">
+            <div className="surface-quiet rounded-[2rem] border border-border p-5">
               <div className="grid gap-3 md:grid-cols-4">
                 {Array.from({ length: 4 }).map((_, index) => (
                   <div key={index} className="space-y-2">
@@ -282,7 +284,7 @@ export function GeneratorPage() {
                 ))}
               </div>
             </div>
-            <div className="rounded-[2rem] border border-white/70 bg-white/72 p-6">
+            <div className="surface-card rounded-[2rem] border border-border p-6">
               <div className="space-y-4">
                 <Skeleton className="h-6 w-40" />
                 {Array.from({ length: 3 }).map((_, index) => (
@@ -295,7 +297,7 @@ export function GeneratorPage() {
               </div>
             </div>
           </section>
-          <Card className="rounded-[2rem]">
+          <Card variant="document" className="rounded-[2rem]">
             <CardHeader>
               <Skeleton className="h-6 w-40" />
               <Skeleton className="h-4 w-60" />
@@ -317,6 +319,7 @@ export function GeneratorPage() {
         <PageHeader
           title="Generator"
           description="Select saved accomplishments, choose a tone, and turn evidence into editable output."
+          eyebrow="Draft workspace"
         />
         <EmptyState
           eyebrow="Draft generation"
@@ -344,6 +347,7 @@ export function GeneratorPage() {
       <PageHeader
         title="Generator"
         description="Filter down to the strongest evidence, choose a single output type and tone, then turn the selected work into an editable draft you can copy anywhere."
+        eyebrow="Draft workspace"
       />
 
       <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
@@ -357,7 +361,7 @@ export function GeneratorPage() {
             queryPlaceholder="Filter entries before selecting what should feed the draft"
           />
 
-          <Card className="rounded-[2rem]">
+          <Card variant="elevated" className="rounded-[2rem]">
             <CardHeader>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="space-y-2">
@@ -367,13 +371,13 @@ export function GeneratorPage() {
                     tightly related entries usually reads best.
                   </CardDescription>
                 </div>
-                <Badge variant="subtle">
+                <Badge variant="selected">
                   {selectedIds.length} selected
                 </Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-5">
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] bg-muted/55 px-4 py-3 text-sm">
+              <div className="surface-quiet flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] border border-border px-4 py-3 text-sm">
                 <p className="text-muted-foreground">
                   {visibleSelectedCount} of {filteredEntries.length} visible entries selected.
                 </p>
@@ -398,11 +402,11 @@ export function GeneratorPage() {
               </div>
 
               {filteredEntries.length === 0 ? (
-                <div className="rounded-[1.75rem] border border-dashed border-border-strong/70 bg-white/55 px-5 py-7">
-                  <h2 className="text-lg font-semibold tracking-tight text-foreground">
+                <div className="rounded-[1.75rem] border border-dashed border-border-strong/70 bg-white/65 px-5 py-7">
+                  <h2 className="font-display text-[1.7rem] tracking-[-0.04em] text-foreground">
                     No entries match these filters
                   </h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                  <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">
                     Widen the quarter or proof filters, or search with a different project, tag, or metric phrase.
                   </p>
                 </div>
@@ -420,10 +424,10 @@ export function GeneratorPage() {
                             <div className="space-y-3">
                               <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div className="space-y-2">
-                                  <p className="text-lg font-semibold tracking-tight text-foreground">
+                                  <p className="font-display text-[1.6rem] leading-[1.02] tracking-[-0.04em] text-foreground">
                                     {entry.title}
                                   </p>
-                                  <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+                                  <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
                                     {entry.result ??
                                       entry.metric ??
                                       entry.action ??
@@ -434,7 +438,7 @@ export function GeneratorPage() {
                               </div>
                               <div className="flex flex-wrap gap-2">
                                 {entry.tags.slice(0, 4).map((tag) => (
-                                  <Badge key={tag} variant="subtle">
+                                  <Badge key={tag} variant={checked ? "selected" : "subtle"}>
                                     {tag}
                                   </Badge>
                                 ))}
@@ -466,7 +470,7 @@ export function GeneratorPage() {
         </section>
 
         <section className="space-y-5 xl:sticky xl:top-6 xl:self-start">
-          <Card className="rounded-[2rem]">
+          <Card variant="quiet" className="rounded-[2rem]">
             <CardHeader>
               <CardTitle>Draft controls</CardTitle>
               <CardDescription>
@@ -545,7 +549,7 @@ export function GeneratorPage() {
                 </div>
               ) : null}
 
-              <div className="rounded-[1.5rem] bg-muted/55 px-4 py-3 text-sm leading-6 text-muted-foreground">
+              <div className="surface-elevated rounded-[1.5rem] border border-border px-4 py-3 text-sm leading-6 text-muted-foreground">
                 <p>
                   {selectedEntries.length === 0
                     ? "No entries selected yet."
@@ -602,7 +606,7 @@ export function GeneratorPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[2rem]">
+          <Card variant="document" className="rounded-[2rem] overflow-hidden">
             <CardHeader>
               <CardTitle>Editable output</CardTitle>
               <CardDescription>
@@ -611,23 +615,30 @@ export function GeneratorPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {draft ? (
-                <Textarea
-                  ref={outputRef}
-                  aria-label="Editable output"
-                  value={draft}
-                  spellCheck={false}
-                  className="min-h-[32rem] font-mono text-[13px] leading-6 sm:min-h-[34rem]"
-                  onChange={(event) => {
-                    setCopyStatus(null);
-                    setDraft(event.target.value);
-                  }}
-                />
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-4 text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
+                    <span>{generatorOutputTypeLabels[outputType]}</span>
+                    <span>{generatorToneLabels[tone]}</span>
+                  </div>
+                  <Textarea
+                    ref={outputRef}
+                    aria-label="Editable output"
+                    value={draft}
+                    spellCheck={false}
+                    variant="document"
+                    className="min-h-[32rem] sm:min-h-[34rem]"
+                    onChange={(event) => {
+                      setCopyStatus(null);
+                      setDraft(event.target.value);
+                    }}
+                  />
+                </div>
               ) : (
-                <div className="rounded-[1.75rem] border border-dashed border-border-strong/70 bg-white/55 px-5 py-7">
-                  <h2 className="text-lg font-semibold tracking-tight text-foreground">
+                <div className="rounded-[1.75rem] border border-dashed border-border-strong/70 bg-white/60 px-5 py-7">
+                  <h2 className="font-display text-[1.7rem] tracking-[-0.04em] text-foreground">
                     No generated draft yet
                   </h2>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  <p className="mt-2 text-sm leading-7 text-muted-foreground">
                     Select one or more entries, choose the output shape, and generate the first draft here.
                   </p>
                 </div>

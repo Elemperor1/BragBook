@@ -12,7 +12,7 @@ export function ProofStrengthExplainer({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-[1.5rem] border border-border bg-white/60 p-4", className)}>
+    <div className={cn("surface-quiet rounded-[1.5rem] border border-border p-4", className)}>
       <div className="space-y-1">
         <p className="text-sm font-medium text-foreground">{title}</p>
         <p className="text-sm leading-6 text-muted-foreground">
@@ -24,7 +24,10 @@ export function ProofStrengthExplainer({
           const meta = proofStrengthMeta[strength];
 
           return (
-            <div key={strength} className="rounded-[1.25rem] bg-muted/55 px-3 py-3">
+            <div
+              key={strength}
+              className="rounded-[1.25rem] border border-white/60 bg-white/78 px-3 py-3"
+            >
               <div className="flex items-center gap-2">
                 <Badge variant={meta.variant}>{meta.badgeLabel}</Badge>
               </div>

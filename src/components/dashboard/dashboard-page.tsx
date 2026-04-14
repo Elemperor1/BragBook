@@ -28,10 +28,11 @@ export function DashboardPage() {
         <PageHeader
           title="Dashboard"
           description="Loading your browser-local evidence."
+          eyebrow="Evidence pipeline"
         />
         <section className="grid gap-4 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Card key={index} className="rounded-[2rem]">
+            <Card key={index} variant={index === 0 ? "elevated" : "default"} className="rounded-[2rem]">
               <CardHeader>
                 <Skeleton className="h-4 w-28" />
               </CardHeader>
@@ -70,6 +71,7 @@ export function DashboardPage() {
         <PageHeader
           title="Dashboard"
           description="Capture the work while it is fresh, then reuse the proof when review season shows up."
+          eyebrow="Evidence pipeline"
           action={
             <Link href="/entries/new" className={buttonStyles({ size: "lg" })}>
               Capture a new win
@@ -112,6 +114,7 @@ export function DashboardPage() {
       <PageHeader
         title="Dashboard"
         description="See your evidence pipeline at a glance, then tighten the entries that will matter most when review season shows up."
+        eyebrow="Evidence pipeline"
         action={
           <Link href="/entries/new" className={buttonStyles({ size: "lg" })}>
             Capture a new win
@@ -119,11 +122,13 @@ export function DashboardPage() {
         }
       />
 
-      <section className="grid gap-4 xl:grid-cols-4">
+      <section className="grid gap-4 xl:grid-cols-5">
         <StatTile
           label="Total entries"
           value={stats.totalEntries}
           helper="Wins with reusable context and proof."
+          variant="lead"
+          className="xl:col-span-2"
         />
         <StatTile
           label="Captured this quarter"
@@ -144,7 +149,7 @@ export function DashboardPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <Card className="rounded-[2rem]">
+        <Card variant="elevated" className="rounded-[2rem]">
           <CardHeader>
             <CardTitle>Entries by quarter</CardTitle>
             <CardDescription>
@@ -163,7 +168,7 @@ export function DashboardPage() {
                   </div>
                   <div className="h-2 rounded-full bg-muted/80">
                     <div
-                      className="h-2 rounded-full bg-accent transition-[width]"
+                      className="h-2 rounded-full bg-foreground transition-[width]"
                       style={{ width: `${width}%` }}
                     />
                   </div>
@@ -173,7 +178,7 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[2rem]">
+        <Card variant="quiet" className="rounded-[2rem]">
           <CardHeader>
             <CardTitle>Common tags</CardTitle>
             <CardDescription>
@@ -188,7 +193,7 @@ export function DashboardPage() {
             ) : (
               <div className="flex flex-wrap gap-2">
                 {stats.commonTags.map(({ tag, count }) => (
-                  <Badge key={tag} variant="subtle">
+                  <Badge key={tag} variant="selected">
                     {tag} ({count})
                   </Badge>
                 ))}

@@ -8,7 +8,7 @@ export function EntryMetadataStrip({ entry }: { entry: AccomplishmentEntry }) {
     <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
       <ProofStrengthBadge entry={entry} />
       <Badge variant="subtle">{formatDateRange(entry.startDate, entry.endDate)}</Badge>
-      {entry.project ? <Badge variant="subtle">{entry.project}</Badge> : null}
+      {entry.project ? <Badge variant="selected">{entry.project}</Badge> : null}
       {entry.proofItems.length > 0 ? (
         <Badge variant="subtle">
           {entry.proofItems.length} proof {entry.proofItems.length === 1 ? "item" : "items"}

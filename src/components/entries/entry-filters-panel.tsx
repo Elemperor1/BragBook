@@ -45,7 +45,12 @@ export function EntryFiltersPanel({
   const visibleTags = showAllTags ? filterOptions.tags : filterOptions.tags.slice(0, 8);
 
   return (
-    <div className={cn("rounded-[2rem] border border-border bg-white/60 p-5", className)}>
+    <div
+      className={cn(
+        "surface-quiet rounded-[2rem] border border-border p-5",
+        className,
+      )}
+    >
       <div className="grid gap-4 xl:grid-cols-4">
         <div className="space-y-2 xl:col-span-2">
           <label
@@ -165,7 +170,7 @@ export function EntryFiltersPanel({
                 aria-pressed={active}
                 onClick={() => toggleTag(tag)}
               >
-                <Badge variant={active ? "default" : "subtle"}>
+                <Badge variant={active ? "accent" : "subtle"}>
                   {tag} ({count})
                 </Badge>
               </button>
@@ -187,13 +192,19 @@ export function EntryFiltersPanel({
         <p>
           Showing {filteredCount} of {totalEntries} entries.
         </p>
-        <Button variant="ghost" size="sm" onClick={() => setFilters({
-          query: "",
-          project: "all",
-          quarter: "all",
-          tags: [],
-          proofStrength: "all",
-        })}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() =>
+            setFilters({
+              query: "",
+              project: "all",
+              quarter: "all",
+              tags: [],
+              proofStrength: "all",
+            })
+          }
+        >
           Reset filters
         </Button>
       </div>

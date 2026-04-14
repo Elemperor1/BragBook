@@ -35,6 +35,7 @@ export function EntriesPage() {
       <PageHeader
         title="Entries"
         description="Every entry keeps the context, result, and proof together so the work is reusable later."
+        eyebrow="Evidence library"
         action={
           <Link href="/entries/new" className={buttonStyles({ size: "lg" })}>
             New entry
@@ -44,7 +45,7 @@ export function EntriesPage() {
 
       {!entries || !filterOptions || !filteredEntries ? (
         <div className="space-y-6">
-          <div className="rounded-[2rem] border border-white/70 bg-white/72 p-5">
+          <div className="surface-quiet rounded-[2rem] border border-border p-5">
             <div className="grid gap-3 md:grid-cols-4">
               {Array.from({ length: 4 }).map((_, index) => (
                 <div key={index} className="space-y-2">
@@ -58,7 +59,7 @@ export function EntriesPage() {
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
-                className="rounded-[2rem] border border-white/70 bg-white/72 p-6"
+                className="surface-card rounded-[2rem] border border-border p-6"
               >
                 <div className="space-y-3">
                   <Skeleton className="h-4 w-24" />
@@ -99,11 +100,11 @@ export function EntriesPage() {
           />
 
           {filteredEntries.length === 0 ? (
-            <div className="rounded-[2rem] border border-dashed border-border-strong/70 bg-white/55 px-6 py-8">
-              <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            <div className="surface-quiet rounded-[2rem] border border-dashed border-border-strong/70 px-6 py-8">
+              <h2 className="font-display text-[1.7rem] tracking-[-0.04em] text-foreground">
                 No entries match these filters
               </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">
                 Try clearing one filter, widening the quarter range, or searching with a project or tag name instead.
               </p>
             </div>

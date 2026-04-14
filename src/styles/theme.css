@@ -1,22 +1,27 @@
 :root {
-  --background: #f3efe8;
-  --foreground: #1d1a17;
-  --panel: rgba(255, 255, 255, 0.72);
-  --panel-strong: rgba(255, 255, 255, 0.9);
-  --panel-muted: rgba(245, 241, 235, 0.7);
-  --card: rgba(255, 255, 255, 0.84);
-  --card-foreground: #211d19;
-  --border: rgba(98, 84, 68, 0.14);
-  --border-strong: rgba(98, 84, 68, 0.24);
-  --muted: #ede7df;
-  --muted-foreground: #675f56;
-  --accent: #7e6b55;
-  --accent-foreground: #faf7f2;
-  --accent-soft: rgba(126, 107, 85, 0.12);
-  --success: #2d6b57;
-  --warning: #7b5c24;
-  --danger: #a44d3f;
-  --shadow: 0 16px 40px rgba(43, 34, 24, 0.09);
+  --background: #f2ede6;
+  --foreground: #171310;
+  --panel: rgba(248, 244, 238, 0.78);
+  --panel-strong: rgba(255, 252, 247, 0.94);
+  --panel-muted: rgba(235, 228, 219, 0.88);
+  --card: rgba(251, 247, 241, 0.94);
+  --card-foreground: #1d1814;
+  --border: rgba(91, 73, 50, 0.12);
+  --border-strong: rgba(91, 73, 50, 0.22);
+  --muted: #e8e0d5;
+  --muted-foreground: #675b4f;
+  --accent: #9a6733;
+  --accent-foreground: #fff7ef;
+  --accent-soft: rgba(154, 103, 51, 0.12);
+  --success: #1f6a52;
+  --warning: #8b622a;
+  --danger: #9c4439;
+  --ink: #171310;
+  --ink-foreground: #f7f1e8;
+  --shadow-card: 0 16px 34px rgba(28, 20, 13, 0.08);
+  --shadow-elevated: 0 24px 52px rgba(28, 20, 13, 0.14);
+  --shadow-feature: 0 26px 56px rgba(12, 9, 7, 0.28);
+  --shadow-document: 0 24px 48px rgba(52, 38, 24, 0.12);
 }
 
 @theme inline {
@@ -37,9 +42,13 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
   --font-sans: var(--font-manrope);
+  --font-display: var(--font-newsreader);
   --font-mono: var(--font-jetbrains-mono);
-  --radius-card: 1.5rem;
+  --radius-panel: 2rem;
+  --radius-card: 1.25rem;
   --radius-pill: 999px;
 }
 
@@ -55,14 +64,14 @@
   body {
     @apply min-h-screen font-sans text-foreground antialiased;
     background:
-      radial-gradient(circle at top left, rgba(194, 181, 163, 0.26), transparent 24rem),
-      radial-gradient(circle at top right, rgba(126, 107, 85, 0.1), transparent 20rem),
-      linear-gradient(180deg, #f6f3ee 0%, #f1ece4 100%);
+      radial-gradient(circle at top left, rgba(154, 103, 51, 0.12), transparent 24rem),
+      radial-gradient(circle at 90% 10%, rgba(23, 19, 16, 0.06), transparent 28rem),
+      linear-gradient(180deg, #f7f3ed 0%, #f1ece4 45%, #ece5dc 100%);
     font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
   }
 
   ::selection {
-    background: rgba(126, 107, 85, 0.18);
+    background: rgba(154, 103, 51, 0.18);
   }
 
   a {
@@ -71,20 +80,79 @@
 }
 
 @layer components {
-  .shell-panel {
-    background: var(--panel);
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(20px);
+  .eyebrow-label {
+    @apply font-mono text-[11px] uppercase tracking-[0.32em] text-muted-foreground;
   }
 
-  .shell-card {
+  .display-title {
+    font-family: var(--font-newsreader);
+    font-size: clamp(3.5rem, 7vw, 5.75rem);
+    line-height: 0.92;
+    letter-spacing: -0.055em;
+  }
+
+  .page-title {
+    font-family: var(--font-newsreader);
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+  }
+
+  .section-title {
+    font-family: var(--font-newsreader);
+    font-size: clamp(2rem, 2.8vw, 2.6rem);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+  }
+
+  .support-copy {
+    @apply text-[15px] leading-7 text-muted-foreground sm:text-base;
+  }
+
+  .document-prose {
+    font-size: 1rem;
+    line-height: 1.82;
+    letter-spacing: -0.01em;
+  }
+
+  .shell-panel {
+    background: var(--panel);
+    box-shadow: var(--shadow-elevated);
+    backdrop-filter: blur(18px);
+  }
+
+  .surface-quiet {
+    background: var(--panel-muted);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48);
+  }
+
+  .surface-card {
     background: var(--card);
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-card);
+  }
+
+  .surface-elevated {
+    background: var(--panel-strong);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .surface-feature {
+    background: linear-gradient(180deg, #221d19 0%, #15110e 100%);
+    box-shadow: var(--shadow-feature);
+  }
+
+  .surface-document {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 251, 245, 0.98) 0%,
+      rgba(247, 241, 232, 0.98) 100%
+    );
+    box-shadow: var(--shadow-document);
   }
 
   .field-surface {
-    @apply rounded-2xl border border-border bg-white/75 shadow-sm;
+    @apply rounded-[1rem] border border-border bg-white/90;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
   }
 
   .fine-border {
