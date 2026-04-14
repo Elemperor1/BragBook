@@ -11,155 +11,308 @@ import {
 } from "@/components/ui/card";
 import { demoEntries } from "@/lib/demo-entries";
 import { generateOutput } from "@/lib/generator";
+import { cn } from "@/lib/utils/cn";
 
-const heroPoints = [
-  "Capture wins in under 2 minutes",
-  "Attach metrics, praise, screenshots, and evidence",
-  "Generate polished career documents",
-  "Keep everything stored only in this browser",
+const heroProofStrip = [
+  "Capture in minutes",
+  "Proof-backed outputs",
+  "Browser-local by default",
+  "No account required",
 ] as const;
 
-const featureHighlights = [
+const evidenceLossRows = [
+  "You remember the project, but not the details that make the work promotable.",
+  "Review season becomes archaeology through Slack threads, docs, screenshots, and old dashboards.",
+  "Resume bullets weaken when the strongest proof was never saved in one place.",
+  "Interview stories lose credibility when outcomes and evidence are reconstructed from memory.",
+] as const;
+
+const captureFields = [
+  "Situation and scope",
+  "Action you personally drove",
+  "Result and measurable outcome",
+  "Stakeholders and visibility",
+  "Screenshots, praise, and artifacts",
+  "Tags that make the work reusable later",
+] as const;
+
+const captureSteps = [
   {
-    title: "Structured proof, not vague notes",
+    step: "01",
+    title: "Capture the work while the proof is still easy to recover",
     description:
-      "Each entry stores situation, action, result, metrics, tags, stakeholders, and proof so future writing starts with signal instead of guesswork.",
+      "Save the situation, action, result, metric, and stakeholders before the context diffuses across tools and meetings.",
   },
   {
-    title: "Documents from the same source of truth",
+    step: "02",
+    title: "Attach the evidence that makes the story defensible",
     description:
-      "Turn saved entries into self-reviews, resume bullets, promotion packets, and STAR stories without rewriting the same accomplishment from scratch.",
+      "Screenshots, praise, before-and-after notes, and artifact links travel with the entry instead of living in separate tabs.",
   },
   {
-    title: "Evidence that survives review season",
+    step: "03",
+    title: "Generate serious drafts from a real source of truth",
     description:
-      "Screenshots, praise, metrics, and linked artifacts travel with the entry so your strongest work is still defensible months later.",
-  },
-  {
-    title: "Private by default",
-    description:
-      "Data stays in this browser with local backup and restore. No accounts, billing, or sync setup required to start capturing.",
+      "Promotion packets, self-reviews, resume bullets, and STAR stories stay specific because they start from structured proof.",
   },
 ] as const;
 
-const painPoints = [
-  "You remember the work, but not the details that make it credible.",
-  "Review season becomes archaeology through Slack, docs, and screenshots.",
-  "Resume bullets sound generic because the best proof was never saved.",
-  "Interview stories weaken when results and evidence are reconstructed from memory.",
+const trustStatements = [
+  {
+    title: "Stored in this browser",
+    description:
+      "Entries and saved proof stay in local browser storage on this device unless you choose to export them.",
+  },
+  {
+    title: "You keep the backup",
+    description:
+      "Export and restore a JSON backup when you want safekeeping, migration, or a clean handoff between devices.",
+  },
+  {
+    title: "No accounts or sync required",
+    description:
+      "No billing, no logins, and no cloud setup between you and the first entry that matters.",
+  },
 ] as const;
 
-const trustPoints = [
-  "Stored locally in IndexedDB on this device and browser",
-  "JSON backup and restore for demos, migrations, and safekeeping",
-  "No accounts, billing, cloud sync, or external systems in this product pass",
-] as const;
+const heroEntry = demoEntries.find((entry) => entry.id === "demo-ci-lane") ?? demoEntries[0];
+const careerAssetEntries = demoEntries.slice(0, 3);
 
-function buildExampleOutputs() {
-  const highlightEntries = demoEntries.slice(0, 2);
-
-  return [
-    {
-      label: "Self-review",
-      eyebrow: "Performance cycle",
-      content: generateOutput({
-        entries: highlightEntries,
-        outputType: "selfReview",
-        tone: "confident",
-      }),
-    },
-    {
-      label: "Resume bullets",
-      eyebrow: "Career narrative",
-      content: generateOutput({
-        entries: highlightEntries,
-        outputType: "resumeBullets",
-        tone: "concise",
-      }),
-    },
-    {
-      label: "STAR story",
-      eyebrow: "Interview prep",
-      content: generateOutput({
-        entries: [demoEntries[2]],
-        outputType: "starStories",
-        tone: "technical",
-      }),
-    },
-  ] as const;
-}
-
-const exampleOutputs = buildExampleOutputs();
+type ExampleOutput = {
+  label: string;
+  eyebrow: string;
+  usedFor: string;
+  documentLabel: string;
+  excerpt: string;
+};
 
 function marketingButtonStyles(kind: "primary" | "secondary") {
   if (kind === "primary") {
     return buttonStyles({
       size: "lg",
-      className: "min-w-40 px-6",
+      className: "min-w-44 px-6",
     });
   }
 
   return buttonStyles({
     variant: "secondary",
     size: "lg",
-    className: "min-w-40 px-6",
+    className: "min-w-44 px-6",
   });
 }
 
-function OutputPreviewCard({
-  label,
-  eyebrow,
-  content,
-}: {
-  label: string;
-  eyebrow: string;
-  content: string;
-}) {
+function takeDocumentExcerpt(content: string, maxNonEmptyLines: number) {
+  const lines = content.split("\n");
+  const excerptLines: string[] = [];
+  let seenNonEmptyLines = 0;
+
+  for (const line of lines) {
+    excerptLines.push(line);
+
+    if (line.trim().length > 0) {
+      seenNonEmptyLines += 1;
+    }
+
+    if (seenNonEmptyLines >= maxNonEmptyLines) {
+      break;
+    }
+  }
+
+  const trimmed = excerptLines.join("\n").trimEnd();
+  return excerptLines.length < lines.length ? `${trimmed}\n...` : trimmed;
+}
+
+function firstBulletLine(content: string) {
   return (
-    <Card variant="document" className="h-full rounded-[2rem] overflow-hidden">
-      <CardHeader className="border-b border-border/70 pb-5">
+    content
+      .split("\n")
+      .find((line) => line.trim().startsWith("- ")) ??
+    "Saved the win with a real outcome instead of a vague reminder."
+  );
+}
+
+function buildExampleOutputs() {
+  const promotionPacket = generateOutput({
+    entries: careerAssetEntries,
+    outputType: "promotionCase",
+    tone: "executive",
+    targetLevel: "Staff Engineer",
+  });
+  const selfReview = generateOutput({
+    entries: careerAssetEntries.slice(0, 2),
+    outputType: "selfReview",
+    tone: "confident",
+  });
+  const resumeBullets = generateOutput({
+    entries: careerAssetEntries.slice(0, 2),
+    outputType: "resumeBullets",
+    tone: "concise",
+  });
+  const starStories = generateOutput({
+    entries: [demoEntries[2]],
+    outputType: "starStories",
+    tone: "technical",
+  });
+
+  return [
+    {
+      label: "Promotion packet",
+      eyebrow: "Promotion conversation",
+      usedFor: "Staff Engineer case",
+      documentLabel: "Leadership narrative",
+      excerpt: takeDocumentExcerpt(promotionPacket, 11),
+    },
+    {
+      label: "Self-review",
+      eyebrow: "Performance cycle",
+      usedFor: "Manager-ready draft",
+      documentLabel: "Review summary",
+      excerpt: takeDocumentExcerpt(selfReview, 6),
+    },
+    {
+      label: "Resume bullets",
+      eyebrow: "Career narrative",
+      usedFor: "External story",
+      documentLabel: "Resume-ready bullets",
+      excerpt: takeDocumentExcerpt(resumeBullets, 5),
+    },
+    {
+      label: "STAR interview stories",
+      eyebrow: "Interview prep",
+      usedFor: "Prepared answers",
+      documentLabel: "Structured examples",
+      excerpt: takeDocumentExcerpt(starStories, 6),
+    },
+  ] as const satisfies readonly ExampleOutput[];
+}
+
+const exampleOutputs = buildExampleOutputs();
+const promotionPacketPreview = exampleOutputs[0];
+const supportingOutputPreviews = exampleOutputs.slice(1);
+const generatedResumeBullet = firstBulletLine(supportingOutputPreviews[1]?.excerpt ?? "");
+
+function DocumentPreviewCard({
+  output,
+  variant = "compact",
+}: {
+  output: ExampleOutput;
+  variant?: "feature" | "compact";
+}) {
+  const compact = variant === "compact";
+
+  return (
+    <Card
+      variant="document"
+      className={cn(
+        "overflow-hidden rounded-[2.1rem] border border-white/70",
+        compact ? "h-full" : "min-h-[31rem]",
+      )}
+    >
+      <CardHeader className={cn("border-b border-border/80", compact ? "pb-4" : "pb-5")}>
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-2">
-            <CardEyebrow>{eyebrow}</CardEyebrow>
-            <CardTitle className="text-[1.85rem]">{label}</CardTitle>
+            <CardEyebrow>{output.eyebrow}</CardEyebrow>
+            <CardTitle className={compact ? "text-[1.6rem]" : "text-[2rem]"}>
+              {output.label}
+            </CardTitle>
           </div>
-          <Badge variant="accent">Generated draft</Badge>
+          <Badge variant="selected" className="shrink-0">
+            {output.usedFor}
+          </Badge>
         </div>
-        <CardDescription>
-          Realistic product output generated from structured accomplishment entries.
+        <CardDescription className="text-[#5d5144]">
+          Generated from the same evidence packet instead of rewritten from scratch.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 pt-5">
+      <CardContent className={compact ? "pt-4" : "pt-5"}>
         <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
           <span>BragBook document</span>
-          <span>Editable after generation</span>
+          <span>{output.documentLabel}</span>
         </div>
-        <pre className="document-prose max-h-[25rem] overflow-hidden whitespace-pre-wrap font-sans text-[#2d241b]">
-          {content}
+        <div className="mt-4 h-px bg-border/80" />
+        <pre
+          className={cn(
+            "mt-4 whitespace-pre-wrap font-sans text-[#2d241b]",
+            compact ? "text-[0.92rem] leading-7" : "document-prose",
+          )}
+        >
+          {output.excerpt}
         </pre>
       </CardContent>
     </Card>
   );
 }
 
+function HeroDocumentSurface({
+  label,
+  eyebrow,
+  excerpt,
+  className,
+}: {
+  label: string;
+  eyebrow: string;
+  excerpt: string;
+  className?: string;
+}) {
+  return (
+    <Card
+      variant="document"
+      className={cn(
+        "absolute overflow-hidden rounded-[1.9rem] border border-white/75 shadow-[0_28px_50px_rgba(26,18,12,0.16)]",
+        className,
+      )}
+    >
+      <div className="border-b border-border/80 px-5 py-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="space-y-1">
+            <p className="eyebrow-label">{eyebrow}</p>
+            <p className="font-display text-[1.45rem] leading-none tracking-[-0.04em] text-foreground">
+              {label}
+            </p>
+          </div>
+          <Badge variant="accent">Generated</Badge>
+        </div>
+      </div>
+      <div className="px-5 py-4">
+        <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+          <span>Proof-backed draft</span>
+          <span>Editable</span>
+        </div>
+        <pre className="mt-4 whitespace-pre-wrap font-sans text-[0.9rem] leading-7 text-[#2d241b]">
+          {excerpt}
+        </pre>
+      </div>
+    </Card>
+  );
+}
+
 export function LandingPage() {
   return (
-    <main className="overflow-hidden">
-      <section className="relative isolate px-4 pb-20 pt-6 sm:px-6 lg:px-8 lg:pb-28 lg:pt-8">
-        <div className="mx-auto max-w-[1260px]">
-          <div className="grid gap-10 lg:grid-cols-[0.98fr_1.02fr] lg:items-center">
+    <main className="overflow-hidden pb-8">
+      <section className="relative isolate overflow-hidden px-4 pb-20 pt-8 sm:px-6 lg:px-8 lg:pb-28 lg:pt-10">
+        <div className="absolute inset-x-0 top-0 h-[44rem] bg-[radial-gradient(circle_at_top_left,rgba(154,103,51,0.22),transparent_28rem),radial-gradient(circle_at_85%_15%,rgba(23,19,16,0.12),transparent_24rem)]" />
+        <div className="absolute left-[10%] top-24 h-48 w-48 rounded-full bg-white/25 blur-3xl" />
+        <div className="absolute right-[8%] top-12 h-64 w-64 rounded-full bg-accent/14 blur-3xl" />
+
+        <div className="relative mx-auto max-w-[1260px]">
+          <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
             <div className="space-y-8">
               <Badge variant="selected" className="px-4 py-2">
-                Browser-local career evidence vault
+                Private career evidence vault
               </Badge>
 
               <div className="space-y-5">
                 <h1 className="display-title max-w-4xl text-foreground">
-                  Your career wins are too valuable to forget.
+                  Keep the proof behind the work that should advance your career.
                 </h1>
-                <p className="max-w-2xl text-lg leading-8 text-muted-foreground sm:text-[1.15rem]">
-                  Capture proof of your work and turn it into promotion packets,
-                  self-reviews, resume bullets, and interview stories.
+                <p className="max-w-2xl text-lg leading-8 text-[#4e4337] sm:text-[1.16rem]">
+                  Capture wins while the details are fresh, then turn them into
+                  promotion packets, self-reviews, resume bullets, and interview
+                  stories.
+                </p>
+                <p className="max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
+                  Built for ambitious professionals who want stronger evidence,
+                  cleaner narratives, and less end-of-cycle reconstruction.
                 </p>
               </div>
 
@@ -167,101 +320,178 @@ export function LandingPage() {
                 <Link href="/dashboard" className={marketingButtonStyles("primary")}>
                   Open the app
                 </Link>
-                <Link href="#example-outputs" className={marketingButtonStyles("secondary")}>
-                  See example outputs
+                <Link
+                  href="#proof-to-draft"
+                  className={marketingButtonStyles("secondary")}
+                >
+                  See proof-to-draft examples
                 </Link>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                {heroPoints.map((point, index) => (
-                  <Card
-                    key={point}
-                    variant={index === 1 ? "elevated" : "quiet"}
-                    className="rounded-[1.4rem]"
-                  >
-                    <CardContent className="pt-5">
-                      <p className="text-sm font-semibold leading-6 text-foreground">{point}</p>
-                    </CardContent>
-                  </Card>
-                ))}
+              <div className="rounded-[1.75rem] border border-white/65 bg-white/58 px-5 py-5 shadow-[0_18px_34px_rgba(35,24,15,0.07)] backdrop-blur-md">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {heroProofStrip.map((point) => (
+                    <div
+                      key={point}
+                      className="flex items-center gap-3 rounded-[1.1rem] border border-white/55 bg-white/65 px-4 py-3"
+                    >
+                      <span className="h-2.5 w-2.5 rounded-full bg-accent" />
+                      <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">
+                        {point}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="relative lg:pl-6">
-              <div className="absolute -left-6 top-12 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
-              <div className="absolute bottom-8 right-0 h-52 w-52 rounded-full bg-ink/10 blur-3xl" />
+            <div className="relative lg:pl-4">
               <Card
                 variant="elevated"
-                className="relative overflow-hidden rounded-[2.4rem] border border-white/85"
+                className="relative overflow-hidden rounded-[2.8rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,252,247,0.95),rgba(247,241,232,0.88))]"
               >
-                <CardHeader className="border-b border-border/70 pb-5">
+                <div className="absolute inset-x-0 top-0 h-44 bg-[linear-gradient(180deg,rgba(154,103,51,0.1),transparent)]" />
+                <CardHeader className="relative border-b border-border/70 pb-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-2">
-                      <CardEyebrow>Capture to draft</CardEyebrow>
-                      <CardTitle className="max-w-xl text-[2rem]">
-                        Save the proof while it is still easy to recover.
+                      <CardEyebrow>Capture to career asset</CardEyebrow>
+                      <CardTitle className="max-w-xl text-[2.15rem]">
+                        A serious record of the work before review season asks
+                        you to remember it.
                       </CardTitle>
                     </div>
-                    <Badge variant="selected">No account needed</Badge>
+                    <Badge variant="selected">Browser-local by default</Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-5 pt-6">
-                  <div className="grid gap-4 md:grid-cols-[0.95fr_1.05fr]">
-                    <Card variant="quiet" className="rounded-[1.6rem]">
-                      <CardContent className="space-y-4 pt-5">
-                        <p className="eyebrow-label">Entry snapshot</p>
-                        <div className="space-y-3">
-                          <p className="text-lg font-semibold leading-tight text-foreground">
-                            Stabilized the CI lane for monorepo builds
-                          </p>
-                          <p className="text-sm leading-7 text-muted-foreground">
-                            Saved with metric proof, rollout context, stakeholders, and linked
-                            artifacts instead of a vague note.
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            <Badge variant="subtle">reliability</Badge>
-                            <Badge variant="subtle">platform</Badge>
-                            <Badge variant="success">strong proof</Badge>
+
+                <CardContent className="relative space-y-5 pt-6">
+                  <div className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+                    <Card
+                      variant="quiet"
+                      className="rounded-[2rem] border border-white/75 bg-white/70 backdrop-blur-md"
+                    >
+                      <CardContent className="space-y-5 pt-5">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="eyebrow-label">Saved entry</p>
+                            <p className="mt-2 font-display text-[1.7rem] leading-[1.02] tracking-[-0.04em] text-foreground">
+                              {heroEntry.title}
+                            </p>
+                          </div>
+                          <Badge variant="success">Strong proof</Badge>
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="rounded-[1.2rem] border border-white/65 bg-white/80 px-4 py-3">
+                            <p className="eyebrow-label">Project</p>
+                            <p className="mt-2 text-sm font-semibold text-foreground">
+                              {heroEntry.project}
+                            </p>
+                          </div>
+                          <div className="rounded-[1.2rem] border border-white/65 bg-white/80 px-4 py-3">
+                            <p className="eyebrow-label">Metric</p>
+                            <p className="mt-2 text-sm font-semibold text-foreground">
+                              {heroEntry.metric}
+                            </p>
                           </div>
                         </div>
+
+                        <div className="space-y-3 rounded-[1.35rem] border border-white/65 bg-white/78 px-4 py-4">
+                          <div>
+                            <p className="eyebrow-label">Situation</p>
+                            <p className="mt-2 text-sm leading-7 text-[#44392d]">
+                              {heroEntry.situation}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="eyebrow-label">Action</p>
+                            <p className="mt-2 text-sm leading-7 text-[#44392d]">
+                              {heroEntry.action}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-[1.35rem] border border-white/65 bg-white/82 px-4 py-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="eyebrow-label">Proof attached</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                              {heroEntry.proofItems.length} items
+                            </p>
+                          </div>
+                          <div className="mt-3 space-y-3">
+                            {heroEntry.proofItems.map((proofItem) => (
+                              <div
+                                key={proofItem.id}
+                                className="rounded-[1.1rem] border border-border/70 bg-[#f9f3ea] px-3 py-3"
+                              >
+                                <p className="text-sm font-semibold text-foreground">
+                                  {proofItem.title}
+                                </p>
+                                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                                  {proofItem.metric ?? proofItem.summary}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          {heroEntry.tags.map((tag) => (
+                            <Badge key={tag} variant="subtle">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
                       </CardContent>
                     </Card>
 
-                    <Card variant="feature" className="rounded-[1.6rem]">
-                      <CardContent className="space-y-4 pt-5">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
-                            Generated from entries
-                          </p>
-                          <Badge variant="feature">self-review</Badge>
-                        </div>
-                        <div className="space-y-4 text-sm leading-7 text-[#f7f1e8]">
-                          <p>
-                            Delivered measurable reliability gains by stabilizing the CI lane,
-                            reducing main-branch failure rate from 18% to 3% within one sprint.
-                          </p>
-                          <p className="text-[#cfbea9]">
-                            Supporting proof included platform scorecards, retro notes, and
-                            cross-team release coordination details.
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                    <div className="space-y-4">
+                      <div className="relative h-[23.5rem]">
+                        <HeroDocumentSurface
+                          label="Promotion packet"
+                          eyebrow="Career asset"
+                          excerpt={takeDocumentExcerpt(
+                            promotionPacketPreview.excerpt,
+                            6,
+                          )}
+                          className="left-3 right-10 top-0 rotate-[-3deg]"
+                        />
+                        <HeroDocumentSurface
+                          label="Self-review"
+                          eyebrow="Manager-ready draft"
+                          excerpt={takeDocumentExcerpt(
+                            supportingOutputPreviews[0]?.excerpt ?? "",
+                            5,
+                          )}
+                          className="bottom-0 left-10 right-0 rotate-[2.5deg]"
+                        />
+                      </div>
 
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    {["Capture the win", "Attach proof", "Generate drafts"].map((step, index) => (
                       <Card
-                        key={step}
-                        variant={index === 2 ? "default" : "quiet"}
-                        className="rounded-[1.35rem]"
+                        variant="feature"
+                        className="rounded-[2rem] border border-white/10"
                       >
-                        <CardContent className="pt-4">
-                          <p className="eyebrow-label">Step {index + 1}</p>
-                          <p className="mt-2 text-sm font-semibold text-foreground">{step}</p>
+                        <CardContent className="grid gap-4 pt-5 md:grid-cols-2">
+                          <div className="space-y-3 rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-4">
+                            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
+                              Before
+                            </p>
+                            <p className="text-sm leading-7 text-[#f0e6d8]">
+                              Helped stabilize CI and wrote some notes for the
+                              team.
+                            </p>
+                          </div>
+                          <div className="space-y-3 rounded-[1.4rem] border border-white/10 bg-white/8 px-4 py-4">
+                            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
+                              After
+                            </p>
+                            <p className="text-sm leading-7 text-[#f7f1e8]">
+                              {generatedResumeBullet}
+                            </p>
+                          </div>
                         </CardContent>
                       </Card>
-                    ))}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -270,198 +500,282 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[1180px] space-y-8">
-          <div className="max-w-2xl space-y-3">
-            <p className="eyebrow-label">Value proposition</p>
-            <h2 className="section-title text-foreground">
-              BragBook makes your strongest work reusable.
-            </h2>
-            <p className="support-copy">
-              Instead of rebuilding the same story for reviews, promotions, resumes, and
-              interviews, you keep structured proof once and reuse it everywhere.
-            </p>
-          </div>
+      <section className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <div className="mx-auto max-w-[1240px] overflow-hidden rounded-[2.9rem] bg-[#171310] shadow-[0_36px_80px_rgba(17,13,10,0.22)]">
+          <div className="grid gap-10 px-6 py-8 lg:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-9">
+            <div className="space-y-4">
+              <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[#cfbea9]">
+                Cost of waiting
+              </p>
+              <h2 className="section-title text-[#f7f1e8]">
+                Career evidence disappears into scattered artifacts.
+              </h2>
+              <p className="max-w-2xl text-base leading-7 text-[#cfbea9]">
+                By the time you need a clean promotion or review narrative, the
+                strongest details are fragmented across tools, timelines, and
+                half-remembered context.
+              </p>
+            </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card variant="quiet" className="rounded-[1.8rem]">
-              <CardHeader>
-                <CardTitle>Capture quickly</CardTitle>
-                <CardDescription>
-                  Save the accomplishment close to the work, before names, metrics, and context
-                  fade.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            <Card variant="elevated" className="rounded-[1.8rem]">
-              <CardHeader>
-                <CardTitle>Defend with proof</CardTitle>
-                <CardDescription>
-                  Add stakeholder praise, screenshots, artifact links, and before/after evidence
-                  that travels with the entry.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            <Card variant="quiet" className="rounded-[1.8rem]">
-              <CardHeader>
-                <CardTitle>Generate serious drafts</CardTitle>
-                <CardDescription>
-                  Create polished documents that sound like they came from real work, not a rushed
-                  end-of-quarter memory dump.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[1180px]">
-          <div className="grid gap-6 lg:grid-cols-[0.82fr_1.18fr]">
-            <Card variant="feature" className="rounded-[2rem]">
-              <CardHeader>
-                <CardEyebrow className="text-[#cfbea9]">Pain point</CardEyebrow>
-                <CardTitle className="text-[2rem] text-[#f7f1e8]">
-                  Career evidence usually disappears into scattered artifacts.
-                </CardTitle>
-                <CardDescription className="text-[#cfbea9]">
-                  By the time you need a clean story, the proof is fragmented across tools and the
-                  strongest details are already gone.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {painPoints.map((point, index) => (
-                <Card
+            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/4">
+              {evidenceLossRows.map((point, index) => (
+                <div
                   key={point}
-                  variant={index === 0 ? "elevated" : "quiet"}
-                  className="rounded-[1.8rem]"
+                  className={cn(
+                    "grid gap-3 px-5 py-5 md:grid-cols-[auto_1fr] md:items-start",
+                    index > 0 ? "border-t border-white/10" : "",
+                  )}
                 >
-                  <CardContent className="pt-6">
-                    <p className="text-base leading-7 text-foreground">{point}</p>
-                  </CardContent>
-                </Card>
+                  <span className="font-display text-[1.55rem] leading-none tracking-[-0.04em] text-[#f7f1e8]">
+                    0{index + 1}
+                  </span>
+                  <p className="text-base leading-7 text-[#f0e6d8]">{point}</p>
+                </div>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[1180px] space-y-8">
-          <div className="max-w-2xl space-y-3">
-            <p className="eyebrow-label">Feature highlights</p>
-            <h2 className="section-title text-foreground">
-              Built for the work between delivery and recognition.
-            </h2>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {featureHighlights.map((feature, index) => (
-              <Card
-                key={feature.title}
-                variant={index % 2 === 0 ? "elevated" : "default"}
-                className="rounded-[1.8rem]"
-              >
-                <CardHeader>
-                  <CardTitle>{feature.title}</CardTitle>
-                  <CardDescription>{feature.description}</CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="example-outputs" className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[1180px] space-y-8">
-          <div className="max-w-3xl space-y-3">
-            <p className="eyebrow-label">Example outputs</p>
-            <h2 className="section-title text-foreground">
-              The output should look like real career material, not generic filler.
-            </h2>
-            <p className="support-copy">
-              These previews are generated from structured demo entries that mirror the real app
-              workflow and document shapes.
-            </p>
-          </div>
-
-          <div className="grid gap-5 xl:grid-cols-3">
-            {exampleOutputs.map((example) => (
-              <OutputPreviewCard
-                key={example.label}
-                label={example.label}
-                eyebrow={example.eyebrow}
-                content={example.content}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[1180px]">
-          <Card variant="feature" className="overflow-hidden rounded-[2.4rem] border-white/10">
-            <div className="grid gap-8 px-6 py-7 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-8">
-              <div className="space-y-4">
-                <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[#cfbea9]">
-                  Privacy and trust
+      <section
+        id="proof-to-draft"
+        className="px-4 py-20 sm:px-6 lg:px-8 lg:py-24"
+      >
+        <div className="mx-auto max-w-[1240px] space-y-8">
+          <div className="grid gap-8 xl:grid-cols-[0.74fr_1.26fr] xl:items-start">
+            <div className="space-y-4">
+              <p className="eyebrow-label">Proof to draft examples</p>
+              <h2 className="section-title text-foreground">
+                One evidence packet can become four serious career assets.
+              </h2>
+              <p className="support-copy max-w-xl">
+                BragBook keeps a single source of truth for the accomplishment,
+                then reshapes it for the document you need next.
+              </p>
+              <div className="rounded-[1.75rem] border border-border/80 bg-white/60 px-5 py-5">
+                <p className="text-sm font-semibold text-foreground">
+                  Structured proof becomes promotion packets, self-reviews,
+                  resume bullets, and interview stories without turning vague or
+                  repetitive.
                 </p>
-                <h2 className="section-title text-[#f7f1e8]">
-                  Keep your proof stored only in this browser.
+              </div>
+            </div>
+
+            <div className="grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
+              <DocumentPreviewCard output={promotionPacketPreview} variant="feature" />
+              <div className="grid gap-4">
+                {supportingOutputPreviews.map((output) => (
+                  <DocumentPreviewCard
+                    key={output.label}
+                    output={output}
+                    variant="compact"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+        <div className="mx-auto max-w-[1240px]">
+          <div className="grid gap-6 lg:grid-cols-[1.06fr_0.94fr]">
+            <Card variant="elevated" className="rounded-[2.7rem]">
+              <CardHeader className="space-y-4">
+                <CardEyebrow>What BragBook captures</CardEyebrow>
+                <CardTitle className="text-[2.3rem]">
+                  Built for the work between delivery and recognition.
+                </CardTitle>
+                <CardDescription>
+                  The point is not to save a vague memory. The point is to keep
+                  the structured evidence that makes the work reusable later.
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-5">
+                <div className="rounded-[2rem] border border-white/70 bg-white/74 px-5 py-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="eyebrow-label">Evidence packet anatomy</p>
+                      <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                        Every entry can hold the context, outcome, and proof you
+                        need later.
+                      </p>
+                    </div>
+                    <Badge variant="accent">Structured source</Badge>
+                  </div>
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    {captureFields.map((field, index) => (
+                      <div
+                        key={field}
+                        className={cn(
+                          "rounded-[1.3rem] border px-4 py-4",
+                          index === 2
+                            ? "border-accent/20 bg-accent/8"
+                            : "border-border/70 bg-[#faf4eb]",
+                        )}
+                      >
+                        <p className="text-sm font-semibold text-foreground">
+                          {field}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-[1.85rem] border border-border/75 bg-[#f8f2e9] px-5 py-5">
+                  <p className="text-sm leading-7 text-[#4a4034]">
+                    This is what keeps the final output specific, credible, and
+                    reusable across multiple career moments.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-4">
+              {captureSteps.map((step, index) => (
+                <Card
+                  key={step.step}
+                  variant={index === 1 ? "feature" : index === 2 ? "default" : "quiet"}
+                  className="rounded-[2rem]"
+                >
+                  <CardContent className="grid gap-4 pt-5 md:grid-cols-[auto_1fr] md:items-start">
+                    <div
+                      className={cn(
+                        "flex h-11 w-11 items-center justify-center rounded-full border text-sm font-semibold",
+                        index === 1
+                          ? "border-white/10 bg-white/10 text-[#f7f1e8]"
+                          : "border-accent/20 bg-accent/8 text-foreground",
+                      )}
+                    >
+                      {step.step}
+                    </div>
+                    <div className="space-y-2">
+                      <h3
+                        className={cn(
+                          "font-display text-[1.6rem] leading-[1.03] tracking-[-0.04em]",
+                          index === 1 ? "text-[#f7f1e8]" : "text-foreground",
+                        )}
+                      >
+                        {step.title}
+                      </h3>
+                      <p
+                        className={cn(
+                          "text-sm leading-7",
+                          index === 1 ? "text-[#cfbea9]" : "text-muted-foreground",
+                        )}
+                      >
+                        {step.description}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+
+              <div className="rounded-[1.9rem] border border-dashed border-border-strong/70 bg-white/52 px-5 py-5">
+                <p className="text-sm font-semibold leading-7 text-foreground">
+                  The result is a calmer review cycle and stronger career
+                  materials because the evidence base already exists.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-[1180px] rounded-[2.7rem] border border-white/75 bg-[linear-gradient(180deg,rgba(255,251,246,0.92),rgba(244,236,226,0.88))] shadow-[0_24px_52px_rgba(28,20,13,0.1)]">
+          <div className="grid gap-8 px-6 py-7 lg:grid-cols-[0.96fr_1.04fr] lg:px-8 lg:py-8">
+            <div className="space-y-5">
+              <div className="space-y-3">
+                <p className="eyebrow-label">Privacy and ownership</p>
+                <h2 className="section-title text-foreground">
+                  Clear local ownership, without defensive language.
                 </h2>
-                <p className="max-w-2xl text-base leading-7 text-[#cfbea9]">
-                  BragBook is designed to feel safe enough for raw notes, early evidence, and
-                  sensitive praise. The default posture is browser-local storage, clear warnings,
-                  and a plain backup story.
+                <p className="support-copy">
+                  The privacy model is simple: your evidence stays here unless
+                  you choose to export it.
                 </p>
               </div>
 
               <div className="space-y-3">
-                {trustPoints.map((point) => (
-                  <Card key={point} variant="elevated" className="rounded-[1.4rem]">
-                    <CardContent className="pt-5">
-                      <p className="text-sm font-semibold leading-6 text-foreground">{point}</p>
-                    </CardContent>
-                  </Card>
+                {trustStatements.map((statement) => (
+                  <div
+                    key={statement.title}
+                    className="rounded-[1.5rem] border border-white/70 bg-white/72 px-4 py-4"
+                  >
+                    <p className="text-sm font-semibold text-foreground">
+                      {statement.title}
+                    </p>
+                    <p className="mt-1 text-sm leading-7 text-muted-foreground">
+                      {statement.description}
+                    </p>
+                  </div>
                 ))}
-                <div className="rounded-[1.4rem] border border-warning/25 bg-warning/10 px-4 py-4">
-                  <p className="text-sm leading-6 text-[#f7f1e8]">
-                    Local-only also means clearing browser storage, switching browsers, or using a
-                    fresh device can remove the data unless you export a backup.
-                  </p>
-                </div>
               </div>
             </div>
-          </Card>
+
+            <Card variant="document" className="rounded-[2.1rem] border border-white/75">
+              <CardHeader>
+                <CardEyebrow>Backup caveat</CardEyebrow>
+                <CardTitle className="text-[2rem]">
+                  Local-only works best when the backup story is explicit.
+                </CardTitle>
+                <CardDescription className="text-[#5d5144]">
+                  Export a JSON backup before browser cleanup, device changes, or
+                  switching browsers. Local browser storage is deliberate, but it
+                  is still local storage.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="rounded-[1.4rem] border border-border/70 bg-white/72 px-4 py-4">
+                  <p className="eyebrow-label">Practical default</p>
+                  <p className="mt-2 text-sm leading-7 text-[#4a4034]">
+                    Raw notes, screenshots, and praise stay on this device until
+                    you decide a backup belongs somewhere else.
+                  </p>
+                </div>
+                <div className="rounded-[1.4rem] border border-warning/25 bg-warning/10 px-4 py-4">
+                  <p className="text-sm leading-7 text-[#4a4034]">
+                    If the stored proof matters, export the backup before doing
+                    anything that clears local browser data.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
-      <section className="px-4 pb-20 pt-8 sm:px-6 lg:px-8 lg:pb-24">
-        <div className="mx-auto max-w-[1180px]">
-          <Card variant="elevated" className="rounded-[2.6rem]">
-            <CardContent className="flex flex-col gap-6 px-6 py-8 lg:flex-row lg:items-end lg:justify-between lg:px-8 lg:py-9">
-              <div className="max-w-3xl space-y-3">
-                <p className="eyebrow-label">Call to action</p>
-                <h2 className="section-title text-foreground">
-                  Build the proof base before the next review cycle asks for it.
-                </h2>
-                <p className="support-copy">
-                  Open the product, capture one recent win, and see how quickly structured proof
-                  turns into reusable career material.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/dashboard" className={marketingButtonStyles("primary")}>
-                  Start in the app
-                </Link>
-                <Link href="/settings" className={marketingButtonStyles("secondary")}>
-                  Review backup controls
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+      <section className="px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pt-10">
+        <div className="mx-auto max-w-[1180px] overflow-hidden rounded-[2.9rem] bg-[#171310] shadow-[0_36px_80px_rgba(17,13,10,0.24)]">
+          <div className="grid gap-8 px-6 py-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-8 lg:py-9">
+            <div className="max-w-3xl space-y-4">
+              <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[#cfbea9]">
+                Capture before it fades
+              </p>
+              <h2 className="section-title text-[#f7f1e8]">
+                The evidence is strongest now, not at review time.
+              </h2>
+              <p className="max-w-2xl text-base leading-7 text-[#cfbea9]">
+                Open BragBook, capture one recent win, and leave with material
+                you can reuse in the next review, promotion conversation, or
+                interview loop.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <Link href="/dashboard" className={marketingButtonStyles("primary")}>
+                Open the app
+              </Link>
+              <Link
+                href="/settings"
+                className="block text-sm font-semibold text-[#cfbea9] underline-offset-4 transition hover:text-[#f7f1e8] hover:underline"
+              >
+                Review privacy and backup controls
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </main>

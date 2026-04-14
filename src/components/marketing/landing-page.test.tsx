@@ -19,17 +19,24 @@ describe("LandingPage", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Your career wins are too valuable to forget.",
+        name: "Keep the proof behind the work that should advance your career.",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Value proposition")).toBeInTheDocument();
-    expect(screen.getByText("Pain point")).toBeInTheDocument();
-    expect(screen.getByText("Feature highlights")).toBeInTheDocument();
-    expect(screen.getByText("Example outputs")).toBeInTheDocument();
-    expect(screen.getByText("Privacy and trust")).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: /Open the app|Start in the app/ })).toHaveLength(2);
-    expect(screen.getByText("Self-review")).toBeInTheDocument();
-    expect(screen.getByText("Resume bullets")).toBeInTheDocument();
-    expect(screen.getByText("STAR story")).toBeInTheDocument();
+    expect(screen.getByText("Proof to draft examples")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: "One evidence packet can become four serious career assets.",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Promotion packet").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Self-review").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Resume bullets").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("STAR interview stories").length).toBeGreaterThan(0);
+    expect(screen.getByText("Stored in this browser")).toBeInTheDocument();
+    expect(screen.getAllByText(/JSON backup/).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: "Open the app" })).toHaveLength(2);
+    expect(
+      screen.getByRole("link", { name: "See proof-to-draft examples" }),
+    ).toBeInTheDocument();
   });
 });
