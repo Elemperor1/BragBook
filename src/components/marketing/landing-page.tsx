@@ -258,7 +258,7 @@ function HeroDocumentSurface({
     <Card
       variant="document"
       className={cn(
-        "absolute overflow-hidden rounded-[1.9rem] border border-white/75 shadow-[0_28px_50px_rgba(26,18,12,0.16)]",
+        "overflow-hidden rounded-[1.7rem] border border-white/75 shadow-[0_24px_42px_rgba(26,18,12,0.14)]",
         className,
       )}
     >
@@ -278,7 +278,7 @@ function HeroDocumentSurface({
           <span>Proof-backed draft</span>
           <span>Editable</span>
         </div>
-        <pre className="mt-4 whitespace-pre-wrap font-sans text-[0.9rem] leading-7 text-[#2d241b]">
+        <pre className="mt-4 max-h-[14rem] overflow-hidden whitespace-pre-wrap font-sans text-[0.9rem] leading-7 text-[#2d241b]">
           {excerpt}
         </pre>
       </div>
@@ -295,14 +295,14 @@ export function LandingPage() {
         <div className="absolute right-[8%] top-12 h-64 w-64 rounded-full bg-accent/14 blur-3xl" />
 
         <div className="relative mx-auto max-w-[1260px]">
-          <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-start xl:gap-12">
             <div className="space-y-8">
               <Badge variant="selected" className="px-4 py-2">
                 Private career evidence vault
               </Badge>
 
               <div className="space-y-5">
-                <h1 className="display-title max-w-4xl text-foreground">
+                <h1 className="max-w-[10.5ch] font-display text-[clamp(3.35rem,5.8vw,5.15rem)] leading-[0.9] tracking-[-0.06em] text-foreground">
                   Keep the proof behind the work that should advance your career.
                 </h1>
                 <p className="max-w-2xl text-lg leading-8 text-[#4e4337] sm:text-[1.16rem]">
@@ -345,7 +345,7 @@ export function LandingPage() {
               </div>
             </div>
 
-            <div className="relative lg:pl-4">
+            <div className="relative lg:pl-2 xl:pl-4">
               <Card
                 variant="elevated"
                 className="relative overflow-hidden rounded-[2.8rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,252,247,0.95),rgba(247,241,232,0.88))]"
@@ -355,7 +355,7 @@ export function LandingPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-2">
                       <CardEyebrow>Capture to career asset</CardEyebrow>
-                      <CardTitle className="max-w-xl text-[2.15rem]">
+                      <CardTitle className="max-w-[24rem] text-[1.95rem]">
                         A serious record of the work before review season asks
                         you to remember it.
                       </CardTitle>
@@ -365,7 +365,7 @@ export function LandingPage() {
                 </CardHeader>
 
                 <CardContent className="relative space-y-5 pt-6">
-                  <div className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+                  <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,0.85fr)] xl:items-start">
                     <Card
                       variant="quiet"
                       className="rounded-[2rem] border border-white/75 bg-white/70 backdrop-blur-md"
@@ -445,25 +445,25 @@ export function LandingPage() {
                       </CardContent>
                     </Card>
 
-                    <div className="space-y-4">
-                      <div className="relative h-[23.5rem]">
+                    <div className="space-y-4 xl:pt-2">
+                      <div className="space-y-4 xl:pl-4">
                         <HeroDocumentSurface
                           label="Promotion packet"
                           eyebrow="Career asset"
                           excerpt={takeDocumentExcerpt(
                             promotionPacketPreview.excerpt,
-                            6,
+                            5,
                           )}
-                          className="left-3 right-10 top-0 rotate-[-3deg]"
+                          className="xl:mr-10 xl:rotate-[-2deg]"
                         />
                         <HeroDocumentSurface
                           label="Self-review"
                           eyebrow="Manager-ready draft"
                           excerpt={takeDocumentExcerpt(
                             supportingOutputPreviews[0]?.excerpt ?? "",
-                            5,
+                            4,
                           )}
-                          className="bottom-0 left-10 right-0 rotate-[2.5deg]"
+                          className="xl:ml-10 xl:rotate-[2deg]"
                         />
                       </div>
 
