@@ -190,6 +190,7 @@ const exampleOutputs = buildExampleOutputs();
 const promotionPacketPreview = exampleOutputs[0];
 const supportingOutputPreviews = exampleOutputs.slice(1);
 const generatedResumeBullet = firstBulletLine(supportingOutputPreviews[1]?.excerpt ?? "");
+const heroSelfReviewPreview = supportingOutputPreviews[0];
 
 function DocumentPreviewCard({
   output,
@@ -295,14 +296,14 @@ export function LandingPage() {
         <div className="absolute right-[8%] top-12 h-64 w-64 rounded-full bg-accent/14 blur-3xl" />
 
         <div className="relative mx-auto max-w-[1260px]">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-start xl:gap-12">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:items-start xl:gap-12">
             <div className="space-y-8">
               <Badge variant="selected" className="px-4 py-2">
                 Private career evidence vault
               </Badge>
 
               <div className="space-y-5">
-                <h1 className="max-w-[10.5ch] font-display text-[clamp(3.35rem,5.8vw,5.15rem)] leading-[0.9] tracking-[-0.06em] text-foreground">
+                <h1 className="max-w-[9.6ch] font-display text-[clamp(3.15rem,5.2vw,4.85rem)] leading-[0.9] tracking-[-0.06em] text-foreground">
                   Keep the proof behind the work that should advance your career.
                 </h1>
                 <p className="max-w-2xl text-lg leading-8 text-[#4e4337] sm:text-[1.16rem]">
@@ -355,7 +356,7 @@ export function LandingPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-2">
                       <CardEyebrow>Capture to career asset</CardEyebrow>
-                      <CardTitle className="max-w-[24rem] text-[1.95rem]">
+                      <CardTitle className="max-w-[22rem] text-[1.7rem] leading-[1.06]">
                         A serious record of the work before review season asks
                         you to remember it.
                       </CardTitle>
@@ -365,20 +366,27 @@ export function LandingPage() {
                 </CardHeader>
 
                 <CardContent className="relative space-y-5 pt-6">
-                  <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,0.85fr)] xl:items-start">
+                  <div className="grid gap-5 xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] xl:items-start">
                     <Card
                       variant="quiet"
                       className="rounded-[2rem] border border-white/75 bg-white/70 backdrop-blur-md"
                     >
-                      <CardContent className="space-y-5 pt-5">
+                      <CardContent className="space-y-4 pt-5">
                         <div className="flex items-center justify-between gap-3">
                           <div>
                             <p className="eyebrow-label">Saved entry</p>
-                            <p className="mt-2 font-display text-[1.7rem] leading-[1.02] tracking-[-0.04em] text-foreground">
+                            <p className="mt-2 font-display text-[1.55rem] leading-[1.02] tracking-[-0.04em] text-foreground">
                               {heroEntry.title}
                             </p>
                           </div>
                           <Badge variant="success">Strong proof</Badge>
+                        </div>
+
+                        <div className="rounded-[1.35rem] border border-white/65 bg-white/82 px-4 py-4">
+                          <p className="eyebrow-label">Outcome snapshot</p>
+                          <p className="mt-2 text-sm leading-7 text-[#44392d]">
+                            {heroEntry.result}
+                          </p>
                         </div>
 
                         <div className="grid gap-3 sm:grid-cols-2">
@@ -396,21 +404,6 @@ export function LandingPage() {
                           </div>
                         </div>
 
-                        <div className="space-y-3 rounded-[1.35rem] border border-white/65 bg-white/78 px-4 py-4">
-                          <div>
-                            <p className="eyebrow-label">Situation</p>
-                            <p className="mt-2 text-sm leading-7 text-[#44392d]">
-                              {heroEntry.situation}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="eyebrow-label">Action</p>
-                            <p className="mt-2 text-sm leading-7 text-[#44392d]">
-                              {heroEntry.action}
-                            </p>
-                          </div>
-                        </div>
-
                         <div className="rounded-[1.35rem] border border-white/65 bg-white/82 px-4 py-4">
                           <div className="flex items-center justify-between gap-3">
                             <p className="eyebrow-label">Proof attached</p>
@@ -418,11 +411,11 @@ export function LandingPage() {
                               {heroEntry.proofItems.length} items
                             </p>
                           </div>
-                          <div className="mt-3 space-y-3">
+                          <div className="mt-3 space-y-2">
                             {heroEntry.proofItems.map((proofItem) => (
                               <div
                                 key={proofItem.id}
-                                className="rounded-[1.1rem] border border-border/70 bg-[#f9f3ea] px-3 py-3"
+                                className="rounded-[1.1rem] border border-border/70 bg-[#f9f3ea] px-3 py-2.5"
                               >
                                 <p className="text-sm font-semibold text-foreground">
                                   {proofItem.title}
@@ -435,6 +428,13 @@ export function LandingPage() {
                           </div>
                         </div>
 
+                        <div className="rounded-[1.35rem] border border-white/65 bg-white/78 px-4 py-4">
+                          <p className="eyebrow-label">What was captured</p>
+                          <p className="mt-2 text-sm leading-7 text-[#44392d]">
+                            Mapped flaky jobs, split cache keys by runtime, added lockfile drift alerts, and wrote a recovery playbook for the on-call rotation.
+                          </p>
+                        </div>
+
                         <div className="flex flex-wrap gap-2">
                           {heroEntry.tags.map((tag) => (
                             <Badge key={tag} variant="subtle">
@@ -445,52 +445,65 @@ export function LandingPage() {
                       </CardContent>
                     </Card>
 
-                    <div className="space-y-4 xl:pt-2">
-                      <div className="space-y-4 xl:pl-4">
+                    <div className="space-y-4 xl:pt-1">
+                      <div className="xl:pl-3">
                         <HeroDocumentSurface
                           label="Promotion packet"
                           eyebrow="Career asset"
                           excerpt={takeDocumentExcerpt(
                             promotionPacketPreview.excerpt,
-                            5,
+                            7,
                           )}
-                          className="xl:mr-10 xl:rotate-[-2deg]"
-                        />
-                        <HeroDocumentSurface
-                          label="Self-review"
-                          eyebrow="Manager-ready draft"
-                          excerpt={takeDocumentExcerpt(
-                            supportingOutputPreviews[0]?.excerpt ?? "",
-                            4,
-                          )}
-                          className="xl:ml-10 xl:rotate-[2deg]"
+                          className=""
                         />
                       </div>
 
-                      <Card
-                        variant="feature"
-                        className="rounded-[2rem] border border-white/10"
-                      >
-                        <CardContent className="grid gap-4 pt-5 md:grid-cols-2">
-                          <div className="space-y-3 rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-4">
-                            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
-                              Before
+                      <div className="grid gap-4 md:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] xl:pl-3">
+                        <Card
+                          variant="document"
+                          className="rounded-[1.7rem] border border-white/75"
+                        >
+                          <CardContent className="space-y-3 pt-4">
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="eyebrow-label">Supporting draft</p>
+                              <Badge variant="accent">Generated</Badge>
+                            </div>
+                            <p className="font-display text-[1.35rem] leading-none tracking-[-0.04em] text-foreground">
+                              {heroSelfReviewPreview?.label ?? "Self-review"}
                             </p>
-                            <p className="text-sm leading-7 text-[#f0e6d8]">
-                              Helped stabilize CI and wrote some notes for the
-                              team.
-                            </p>
-                          </div>
-                          <div className="space-y-3 rounded-[1.4rem] border border-white/10 bg-white/8 px-4 py-4">
-                            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
-                              After
-                            </p>
-                            <p className="text-sm leading-7 text-[#f7f1e8]">
-                              {generatedResumeBullet}
-                            </p>
-                          </div>
-                        </CardContent>
-                      </Card>
+                            <pre className="max-h-[9.5rem] overflow-hidden whitespace-pre-wrap font-sans text-[0.87rem] leading-6 text-[#2d241b]">
+                              {takeDocumentExcerpt(
+                                heroSelfReviewPreview?.excerpt ?? "",
+                                4,
+                              )}
+                            </pre>
+                          </CardContent>
+                        </Card>
+
+                        <Card
+                          variant="feature"
+                          className="rounded-[1.7rem] border border-white/10"
+                        >
+                          <CardContent className="space-y-4 pt-4">
+                            <div className="space-y-3 rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3">
+                              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
+                                Before
+                              </p>
+                              <p className="text-sm leading-6 text-[#f0e6d8]">
+                                Helped stabilize CI and wrote some notes for the team.
+                              </p>
+                            </div>
+                            <div className="space-y-3 rounded-[1.2rem] border border-white/10 bg-white/8 px-4 py-3">
+                              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
+                                After
+                              </p>
+                              <p className="text-sm leading-6 text-[#f7f1e8]">
+                                {generatedResumeBullet}
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
