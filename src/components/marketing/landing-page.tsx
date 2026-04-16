@@ -244,49 +244,6 @@ function DocumentPreviewCard({
   );
 }
 
-function HeroDocumentSurface({
-  label,
-  eyebrow,
-  excerpt,
-  className,
-}: {
-  label: string;
-  eyebrow: string;
-  excerpt: string;
-  className?: string;
-}) {
-  return (
-    <Card
-      variant="document"
-      className={cn(
-        "overflow-hidden rounded-[1.7rem] border border-white/75 shadow-[0_24px_42px_rgba(26,18,12,0.14)]",
-        className,
-      )}
-    >
-      <div className="border-b border-border/80 px-5 py-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="space-y-1">
-            <p className="eyebrow-label">{eyebrow}</p>
-            <p className="font-display text-[1.45rem] leading-none tracking-[-0.04em] text-foreground">
-              {label}
-            </p>
-          </div>
-          <Badge variant="accent">Generated</Badge>
-        </div>
-      </div>
-      <div className="px-5 py-4">
-        <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-          <span>Proof-backed draft</span>
-          <span>Editable</span>
-        </div>
-        <pre className="mt-4 max-h-[14rem] overflow-hidden whitespace-pre-wrap font-sans text-[0.9rem] leading-7 text-[#2d241b]">
-          {excerpt}
-        </pre>
-      </div>
-    </Card>
-  );
-}
-
 export function LandingPage() {
   return (
     <main className="overflow-hidden pb-8">
@@ -296,14 +253,14 @@ export function LandingPage() {
         <div className="absolute right-[8%] top-12 h-64 w-64 rounded-full bg-accent/14 blur-3xl" />
 
         <div className="relative mx-auto max-w-[1260px]">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:items-start xl:gap-12">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:items-start xl:gap-12">
             <div className="space-y-8">
               <Badge variant="selected" className="px-4 py-2">
                 Private career evidence vault
               </Badge>
 
               <div className="space-y-5">
-                <h1 className="max-w-[9.6ch] font-display text-[clamp(3.15rem,5.2vw,4.85rem)] leading-[0.9] tracking-[-0.06em] text-foreground">
+                <h1 className="max-w-[9.4ch] font-display text-[clamp(3rem,5vw,4.65rem)] leading-[0.9] tracking-[-0.06em] text-foreground">
                   Keep the proof behind the work that should advance your career.
                 </h1>
                 <p className="max-w-2xl text-lg leading-8 text-[#4e4337] sm:text-[1.16rem]">
@@ -356,9 +313,8 @@ export function LandingPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-2">
                       <CardEyebrow>Capture to career asset</CardEyebrow>
-                      <CardTitle className="max-w-[22rem] text-[1.7rem] leading-[1.06]">
-                        A serious record of the work before review season asks
-                        you to remember it.
+                      <CardTitle className="max-w-[22rem] text-[1.72rem] leading-[1.06]">
+                        One evidence packet. Multiple career assets.
                       </CardTitle>
                     </div>
                     <Badge variant="selected">Browser-local by default</Badge>
@@ -366,102 +322,119 @@ export function LandingPage() {
                 </CardHeader>
 
                 <CardContent className="relative space-y-5 pt-6">
-                  <div className="grid gap-5 xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] xl:items-start">
-                    <Card
-                      variant="quiet"
-                      className="rounded-[2rem] border border-white/75 bg-white/70 backdrop-blur-md"
-                    >
-                      <CardContent className="space-y-4 pt-5">
-                        <div className="flex items-center justify-between gap-3">
+                  <div className="grid gap-5 xl:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] xl:items-start">
+                    <div className="space-y-4">
+                      <div className="rounded-[2rem] border border-white/75 bg-white/72 px-5 py-5 shadow-[0_18px_34px_rgba(29,20,13,0.06)]">
+                        <div className="flex items-start justify-between gap-3">
                           <div>
                             <p className="eyebrow-label">Saved entry</p>
-                            <p className="mt-2 font-display text-[1.55rem] leading-[1.02] tracking-[-0.04em] text-foreground">
+                            <p className="mt-2 max-w-[12ch] font-display text-[1.5rem] leading-[1.02] tracking-[-0.04em] text-foreground">
                               {heroEntry.title}
                             </p>
                           </div>
                           <Badge variant="success">Strong proof</Badge>
                         </div>
 
-                        <div className="rounded-[1.35rem] border border-white/65 bg-white/82 px-4 py-4">
+                        <div className="mt-4 rounded-[1.25rem] border border-white/65 bg-[#fcf8f1] px-4 py-4">
                           <p className="eyebrow-label">Outcome snapshot</p>
                           <p className="mt-2 text-sm leading-7 text-[#44392d]">
                             {heroEntry.result}
                           </p>
                         </div>
 
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div className="rounded-[1.2rem] border border-white/65 bg-white/80 px-4 py-3">
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                          <div className="rounded-[1.15rem] border border-white/65 bg-white/80 px-4 py-3">
                             <p className="eyebrow-label">Project</p>
                             <p className="mt-2 text-sm font-semibold text-foreground">
                               {heroEntry.project}
                             </p>
                           </div>
-                          <div className="rounded-[1.2rem] border border-white/65 bg-white/80 px-4 py-3">
+                          <div className="rounded-[1.15rem] border border-white/65 bg-white/80 px-4 py-3">
                             <p className="eyebrow-label">Metric</p>
                             <p className="mt-2 text-sm font-semibold text-foreground">
                               {heroEntry.metric}
                             </p>
                           </div>
                         </div>
+                      </div>
 
-                        <div className="rounded-[1.35rem] border border-white/65 bg-white/82 px-4 py-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <p className="eyebrow-label">Proof attached</p>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                              {heroEntry.proofItems.length} items
-                            </p>
-                          </div>
-                          <div className="mt-3 space-y-2">
-                            {heroEntry.proofItems.map((proofItem) => (
-                              <div
-                                key={proofItem.id}
-                                className="rounded-[1.1rem] border border-border/70 bg-[#f9f3ea] px-3 py-2.5"
-                              >
-                                <p className="text-sm font-semibold text-foreground">
-                                  {proofItem.title}
-                                </p>
-                                <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                                  {proofItem.metric ?? proofItem.summary}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="rounded-[1.35rem] border border-white/65 bg-white/78 px-4 py-4">
-                          <p className="eyebrow-label">What was captured</p>
-                          <p className="mt-2 text-sm leading-7 text-[#44392d]">
-                            Mapped flaky jobs, split cache keys by runtime, added lockfile drift alerts, and wrote a recovery playbook for the on-call rotation.
+                      <div className="rounded-[2rem] border border-white/75 bg-white/72 px-5 py-5 shadow-[0_18px_34px_rgba(29,20,13,0.06)]">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="eyebrow-label">Supporting proof</p>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                            {heroEntry.proofItems.length} items
                           </p>
                         </div>
-
-                        <div className="flex flex-wrap gap-2">
+                        <div className="mt-3 space-y-2">
+                          {heroEntry.proofItems.map((proofItem) => (
+                            <div
+                              key={proofItem.id}
+                              className="rounded-[1.1rem] border border-border/70 bg-[#f9f3ea] px-3 py-3"
+                            >
+                              <p className="text-sm font-semibold text-foreground">
+                                {proofItem.title}
+                              </p>
+                              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                                {proofItem.metric ?? proofItem.summary}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-4 flex flex-wrap gap-2">
                           {heroEntry.tags.map((tag) => (
                             <Badge key={tag} variant="subtle">
                               {tag}
                             </Badge>
                           ))}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
 
-                    <div className="space-y-4 xl:pt-1">
-                      <div className="xl:pl-3">
-                        <HeroDocumentSurface
-                          label="Promotion packet"
-                          eyebrow="Career asset"
-                          excerpt={takeDocumentExcerpt(
-                            promotionPacketPreview.excerpt,
-                            7,
-                          )}
-                          className=""
-                        />
+                    <div className="space-y-4">
+                      <div className="rounded-[2rem] border border-white/75 bg-white/78 px-5 py-5 shadow-[0_18px_34px_rgba(29,20,13,0.06)]">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="accent">Promotion packet</Badge>
+                          <Badge variant="selected">Self-review</Badge>
+                          <Badge variant="subtle">Resume bullet</Badge>
+                        </div>
+
+                        <div className="mt-4 flex items-start justify-between gap-3">
+                          <div className="space-y-2">
+                            <p className="eyebrow-label">Primary output</p>
+                            <p className="font-display text-[1.75rem] leading-[1.02] tracking-[-0.04em] text-foreground">
+                              Case for Staff Engineer
+                            </p>
+                          </div>
+                          <div className="text-right text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                            <p>Proof-backed draft</p>
+                            <p className="mt-1">Editable</p>
+                          </div>
+                        </div>
+
+                        <pre className="mt-4 max-h-[16rem] overflow-hidden whitespace-pre-wrap font-sans text-[0.93rem] leading-7 text-[#2d241b]">
+                          {takeDocumentExcerpt(promotionPacketPreview.excerpt, 8)}
+                        </pre>
+
+                        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                          <div className="rounded-[1.15rem] border border-border/70 bg-[#fcf8f1] px-3 py-3">
+                            <p className="eyebrow-label">Entries used</p>
+                            <p className="mt-2 text-sm font-semibold text-foreground">3 strong accomplishments</p>
+                          </div>
+                          <div className="rounded-[1.15rem] border border-border/70 bg-[#fcf8f1] px-3 py-3">
+                            <p className="eyebrow-label">Frame</p>
+                            <p className="mt-2 text-sm font-semibold text-foreground">Competency-based case</p>
+                          </div>
+                          <div className="rounded-[1.15rem] border border-border/70 bg-[#fcf8f1] px-3 py-3">
+                            <p className="eyebrow-label">Use next</p>
+                            <p className="mt-2 text-sm font-semibold text-foreground">Promotion conversation</p>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="grid gap-4 md:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] xl:pl-3">
+                      <div className="grid gap-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                         <Card
                           variant="document"
-                          className="rounded-[1.7rem] border border-white/75"
+                          className="rounded-[1.8rem] border border-white/75"
                         >
                           <CardContent className="space-y-3 pt-4">
                             <div className="flex items-center justify-between gap-3">
@@ -471,33 +444,30 @@ export function LandingPage() {
                             <p className="font-display text-[1.35rem] leading-none tracking-[-0.04em] text-foreground">
                               {heroSelfReviewPreview?.label ?? "Self-review"}
                             </p>
-                            <pre className="max-h-[9.5rem] overflow-hidden whitespace-pre-wrap font-sans text-[0.87rem] leading-6 text-[#2d241b]">
-                              {takeDocumentExcerpt(
-                                heroSelfReviewPreview?.excerpt ?? "",
-                                4,
-                              )}
+                            <pre className="max-h-[8.5rem] overflow-hidden whitespace-pre-wrap font-sans text-[0.87rem] leading-6 text-[#2d241b]">
+                              {takeDocumentExcerpt(heroSelfReviewPreview?.excerpt ?? "", 4)}
                             </pre>
                           </CardContent>
                         </Card>
 
                         <Card
                           variant="feature"
-                          className="rounded-[1.7rem] border border-white/10"
+                          className="rounded-[1.8rem] border border-white/10"
                         >
                           <CardContent className="space-y-4 pt-4">
-                            <div className="space-y-3 rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3">
+                            <div className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3">
                               <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
                                 Before
                               </p>
-                              <p className="text-sm leading-6 text-[#f0e6d8]">
+                              <p className="mt-2 text-sm leading-6 text-[#f0e6d8]">
                                 Helped stabilize CI and wrote some notes for the team.
                               </p>
                             </div>
-                            <div className="space-y-3 rounded-[1.2rem] border border-white/10 bg-white/8 px-4 py-3">
+                            <div className="rounded-[1.2rem] border border-white/10 bg-white/8 px-4 py-3">
                               <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
                                 After
                               </p>
-                              <p className="text-sm leading-6 text-[#f7f1e8]">
+                              <p className="mt-2 text-sm leading-6 text-[#f7f1e8]">
                                 {generatedResumeBullet}
                               </p>
                             </div>
