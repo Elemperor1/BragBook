@@ -84,9 +84,10 @@ type ExampleOutput = {
 };
 
 const heroEntry = demoEntries.find((entry) => entry.id === "demo-ci-lane") ?? demoEntries[0];
-const heroProofItems = heroEntry.proofItems.slice(0, 2);
+const heroProofItems = heroEntry.proofItems.slice(0, 1);
 const heroStakeholders = heroEntry.stakeholders.slice(0, 2);
 const careerAssetEntries = demoEntries.slice(0, 3);
+const heroEntryDisplayTitle = "Stabilized CI for monorepo builds";
 
 function marketingButtonStyles(kind: "primary" | "secondary") {
   if (kind === "primary") {
@@ -131,6 +132,13 @@ function firstBulletLine(content: string) {
       .find((line) => line.trim().startsWith("- ")) ??
     "Saved the win with a real outcome instead of a vague reminder."
   );
+}
+
+function truncateText(content: string, maxLength: number) {
+  const normalized = content.replace(/\s+/g, " ").trim();
+  return normalized.length > maxLength
+    ? `${normalized.slice(0, maxLength - 1).trimEnd()}…`
+    : normalized;
 }
 
 function buildExampleOutputs() {
@@ -192,7 +200,29 @@ const exampleOutputs = buildExampleOutputs();
 const promotionPacketPreview = exampleOutputs[0];
 const supportingOutputPreviews = exampleOutputs.slice(1);
 const heroSelfReviewPreview = supportingOutputPreviews[0];
-const generatedResumeBullet = firstBulletLine(supportingOutputPreviews[1]?.excerpt ?? "");
+const heroOutcomeSnapshot = truncateText(
+  heroEntry.result ?? "Saved with clear impact, ownership, and visible business value.",
+  94,
+);
+const heroMetricSummary = "18% -> 3% in one sprint";
+const heroProofSummary = truncateText(
+  heroProofItems[0]?.metric ?? heroProofItems[0]?.summary ?? "",
+  54,
+);
+const heroPromotionSummary = truncateText(
+  promotionPacketPreview.excerpt.replace(/\s+/g, " "),
+  190,
+);
+const heroSelfReviewExcerpt = truncateText(
+  takeDocumentExcerpt(heroSelfReviewPreview?.excerpt ?? "", 2)
+    .replace(/^Self-review\s*/i, "")
+    .replace(/\n+/g, " "),
+  42,
+);
+const generatedResumeBullet = truncateText(
+  firstBulletLine(supportingOutputPreviews[1]?.excerpt ?? "").replace(/^- /, ""),
+  46,
+);
 
 function OutputPreviewCard({
   output,
@@ -245,23 +275,23 @@ function OutputPreviewCard({
 export function LandingPage() {
   return (
     <main className="overflow-hidden pb-8">
-      <section className="relative isolate overflow-hidden px-4 pb-20 pt-8 sm:px-6 lg:px-8 lg:pb-28 lg:pt-10">
+      <section className="relative isolate overflow-hidden px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pb-22 lg:pt-8">
         <div className="absolute inset-x-0 top-0 h-[42rem] bg-[radial-gradient(circle_at_top_left,rgba(154,103,51,0.18),transparent_26rem),radial-gradient(circle_at_85%_15%,rgba(23,19,16,0.08),transparent_26rem)]" />
         <div className="absolute left-[10%] top-24 h-48 w-48 rounded-full bg-white/25 blur-3xl" />
         <div className="absolute right-[10%] top-12 h-64 w-64 rounded-full bg-accent/12 blur-3xl" />
 
         <div className="relative mx-auto max-w-[1240px]">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:items-start xl:gap-12">
-            <div className="space-y-8">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.68fr)_minmax(0,1.32fr)] lg:items-start xl:gap-8">
+            <div className="space-y-6">
               <Badge variant="selected" className="px-4 py-2">
                 Private career evidence vault
               </Badge>
 
               <div className="space-y-5">
-                <h1 className="max-w-[9.5ch] font-display text-[clamp(3rem,5vw,4.6rem)] leading-[0.9] tracking-[-0.06em] text-foreground">
+                <h1 className="max-w-[10.5ch] font-display text-[clamp(2.6rem,4vw,3.95rem)] leading-[0.92] tracking-[-0.06em] text-foreground">
                   Keep the proof behind the work that should advance your career.
                 </h1>
-                <p className="max-w-2xl text-lg leading-8 text-[#4e4337] sm:text-[1.14rem]">
+                <p className="max-w-2xl text-[1.02rem] leading-7 text-[#4e4337] sm:text-[1.08rem]">
                   Capture wins while the details are fresh, then turn them into
                   promotion packets, self-reviews, resume bullets, and interview
                   stories.
@@ -284,20 +314,15 @@ export function LandingPage() {
                 </Link>
               </div>
 
-              <div className="rounded-[1.75rem] border border-white/65 bg-white/58 px-5 py-5 shadow-[0_18px_34px_rgba(35,24,15,0.07)] backdrop-blur-md">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {heroProofStrip.map((point) => (
-                    <div
-                      key={point}
-                      className="flex items-center gap-3 rounded-[1.1rem] border border-white/55 bg-white/65 px-4 py-3"
-                    >
-                      <span className="h-2.5 w-2.5 rounded-full bg-accent" />
-                      <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">
-                        {point}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+              <div className="grid max-w-[29rem] gap-x-7 gap-y-2.5 sm:grid-cols-2">
+                {heroProofStrip.map((point) => (
+                  <div key={point} className="flex items-center gap-3">
+                    <span className="h-2 w-2 rounded-full bg-accent" />
+                    <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">
+                      {point}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -320,179 +345,199 @@ export function LandingPage() {
                   <Badge variant="selected">Browser-local by default</Badge>
                 </div>
 
-                <div className="grid gap-5 p-6 lg:p-7 xl:grid-cols-[minmax(0,0.44fr)_minmax(0,0.56fr)] xl:items-start">
-                  <div className="space-y-4">
-                    <div className="rounded-[2rem] border border-white/75 bg-white/75 px-5 py-5 shadow-[0_16px_28px_rgba(29,20,13,0.05)]">
+                <div className="space-y-3 p-4 lg:p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="eyebrow-label">Capture to career asset</p>
+                      <p className="mt-2 text-sm leading-6 text-[#5f5347]">
+                        Structured evidence in, promotion-ready draft out.
+                      </p>
+                    </div>
+                    <p className="hidden text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground md:block">
+                      Saved evidence to editable draft
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 xl:grid-cols-[minmax(0,0.31fr)_minmax(0,0.69fr)] xl:items-stretch">
+                    <div className="rounded-[1.7rem] border border-white/75 bg-white/78 px-3.5 py-3.5 shadow-[0_16px_28px_rgba(29,20,13,0.05)]">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="eyebrow-label">Saved entry</p>
-                          <p className="mt-2 max-w-[13ch] font-display text-[1.58rem] leading-[1.02] tracking-[-0.04em] text-foreground">
-                            {heroEntry.title}
+                          <p className="mt-2 max-w-[9ch] font-display text-[1.24rem] leading-[1.02] tracking-[-0.04em] text-foreground">
+                            {heroEntryDisplayTitle}
                           </p>
                         </div>
-                        <Badge variant="success">Strong proof</Badge>
+                        <Badge variant="success" className="px-2.5 py-1">
+                          Strong proof
+                        </Badge>
                       </div>
 
-                      <div className="mt-4 rounded-[1.3rem] border border-white/65 bg-[#fcf8f1] px-4 py-4">
+                      <div className="mt-3 rounded-[1.05rem] border border-white/65 bg-[#fcf8f1] px-3 py-2.5">
                         <p className="eyebrow-label">Outcome snapshot</p>
-                        <p className="mt-2 text-sm leading-7 text-[#44392d]">
-                          {heroEntry.result}
+                        <p className="mt-2 text-sm leading-6 text-[#44392d]">
+                          {heroOutcomeSnapshot}
                         </p>
                       </div>
 
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-                        <div className="rounded-[1.15rem] border border-white/65 bg-white/82 px-4 py-3">
-                          <p className="eyebrow-label">Project</p>
-                          <p className="mt-2 text-sm font-semibold text-foreground">
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <div className="rounded-full border border-white/65 bg-white/85 px-3 py-1.5">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                            Project
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-foreground">
                             {heroEntry.project}
                           </p>
                         </div>
-                        <div className="rounded-[1.15rem] border border-white/65 bg-white/82 px-4 py-3">
-                          <p className="eyebrow-label">Metric</p>
-                          <p className="mt-2 text-sm font-semibold text-foreground">
-                            {heroEntry.metric}
+                        <div className="rounded-full border border-white/65 bg-white/85 px-3 py-1.5">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                            Metric
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-foreground">
+                            {heroMetricSummary}
                           </p>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="rounded-[2rem] border border-white/75 bg-white/75 px-5 py-5 shadow-[0_16px_28px_rgba(29,20,13,0.05)]">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="eyebrow-label">Supporting proof</p>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                          {heroProofItems.length} items
+                      <div className="mt-3 rounded-[1rem] border border-border/70 bg-[#f9f3ea] px-3 py-2.5">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="eyebrow-label">Proof attached</p>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                            {heroProofItems.length} item
+                          </p>
+                        </div>
+                        <p className="mt-2 text-sm font-semibold text-foreground">
+                          {heroProofItems[0]?.title}
+                        </p>
+                        <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                          {heroProofSummary}
                         </p>
                       </div>
-                      <div className="mt-3 space-y-2">
-                        {heroProofItems.map((proofItem) => (
-                          <div
-                            key={proofItem.id}
-                            className="rounded-[1.1rem] border border-border/70 bg-[#f9f3ea] px-3 py-3"
-                          >
-                            <p className="text-sm font-semibold text-foreground">
-                              {proofItem.title}
-                            </p>
-                            <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                              {proofItem.metric ?? proofItem.summary}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
 
-                      <div className="mt-4 flex flex-wrap gap-2">
+                      <div className="mt-3 flex flex-wrap gap-1.5">
                         {heroStakeholders.map((stakeholder) => (
-                          <Badge key={stakeholder} variant="subtle">
+                          <Badge key={stakeholder} variant="subtle" className="px-2.5 py-1">
                             {stakeholder}
                           </Badge>
                         ))}
-                        {heroEntry.tags.slice(0, 2).map((tag) => (
-                          <Badge key={tag} variant="subtle">
+                        {heroEntry.tags.slice(0, 1).map((tag) => (
+                          <Badge key={tag} variant="subtle" className="px-2.5 py-1">
                             {tag}
                           </Badge>
                         ))}
                       </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-4">
                     <Card
                       variant="document"
                       className="overflow-hidden rounded-[2rem] border border-white/75"
                     >
-                      <CardHeader className="border-b border-border/80 pb-4">
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="accent">Promotion packet</Badge>
-                          <Badge variant="selected">Staff Engineer case</Badge>
+                      <CardHeader className="border-b border-border/80 pb-3.5">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex flex-wrap gap-2">
+                            <Badge variant="accent" className="px-2.5 py-1">
+                              Promotion packet
+                            </Badge>
+                            <Badge variant="selected" className="px-2.5 py-1">
+                              Staff Engineer case
+                            </Badge>
+                          </div>
+                          <Badge variant="subtle" className="px-2.5 py-1">
+                            Proof-backed draft
+                          </Badge>
                         </div>
 
-                        <div className="mt-2 flex items-start justify-between gap-3">
+                        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
                           <div className="space-y-2">
                             <CardEyebrow>Primary output</CardEyebrow>
-                            <CardTitle className="text-[1.85rem]">
+                            <CardTitle className="text-[1.55rem]">
                               Case for Staff Engineer
                             </CardTitle>
+                            <CardDescription className="max-w-[34rem] text-[14px] leading-6 text-[#5d5144]">
+                              One promotion-ready narrative built from saved accomplishments, proof, and visible outcomes.
+                            </CardDescription>
                           </div>
-                          <div className="text-right text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                            <p>Proof-backed draft</p>
-                            <p className="mt-1">Editable</p>
+                          <div className="rounded-full border border-border/70 bg-[#fcf8f1] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                            Editable
                           </div>
                         </div>
-
-                        <CardDescription className="text-[#5d5144]">
-                          One promotion-ready narrative built from saved accomplishments instead of reconstructed evidence.
-                        </CardDescription>
                       </CardHeader>
-                      <CardContent className="pt-4">
-                        <pre className="max-h-[15rem] overflow-hidden whitespace-pre-wrap font-sans text-[0.94rem] leading-7 text-[#2d241b]">
-                          {takeDocumentExcerpt(promotionPacketPreview.excerpt, 6)}
-                        </pre>
+                      <CardContent className="space-y-3 pt-3.5">
+                        <div className="rounded-[1.2rem] border border-border/70 bg-[#fcf8f1] px-4 py-3.5">
+                          <p className="eyebrow-label">Draft excerpt</p>
+                          <p className="mt-2 text-[0.96rem] leading-7 text-[#2d241b]">
+                            {heroPromotionSummary}
+                          </p>
+                        </div>
 
-                        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                          <div className="rounded-[1.15rem] border border-border/70 bg-[#fcf8f1] px-3 py-3">
+                        <div className="grid gap-2 sm:grid-cols-3">
+                          <div className="rounded-[1.05rem] border border-border/70 bg-[#fcf8f1] px-3 py-2.5">
                             <p className="eyebrow-label">Entries used</p>
-                            <p className="mt-2 text-sm font-semibold text-foreground">
+                            <p className="mt-1.5 text-sm font-semibold text-foreground">
                               3 strong accomplishments
                             </p>
                           </div>
-                          <div className="rounded-[1.15rem] border border-border/70 bg-[#fcf8f1] px-3 py-3">
+                          <div className="rounded-[1.05rem] border border-border/70 bg-[#fcf8f1] px-3 py-2.5">
                             <p className="eyebrow-label">Frame</p>
-                            <p className="mt-2 text-sm font-semibold text-foreground">
+                            <p className="mt-1.5 text-sm font-semibold text-foreground">
                               Competency-based case
                             </p>
                           </div>
-                          <div className="rounded-[1.15rem] border border-border/70 bg-[#fcf8f1] px-3 py-3">
+                          <div className="rounded-[1.05rem] border border-border/70 bg-[#fcf8f1] px-3 py-2.5">
                             <p className="eyebrow-label">Use next</p>
-                            <p className="mt-2 text-sm font-semibold text-foreground">
+                            <p className="mt-1.5 text-sm font-semibold text-foreground">
                               Promotion conversation
                             </p>
                           </div>
                         </div>
+
+                        <div className="rounded-[1.15rem] border border-border/70 bg-white/82 px-3.5 py-3">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="eyebrow-label">Also generated</p>
+                            <div className="flex flex-wrap gap-2">
+                              <Badge variant="selected" className="px-2.5 py-1">
+                                Self-review
+                              </Badge>
+                              <Badge variant="subtle" className="px-2.5 py-1">
+                                Resume bullets
+                              </Badge>
+                              <Badge variant="subtle" className="px-2.5 py-1">
+                                STAR stories
+                              </Badge>
+                            </div>
+                          </div>
+
+                          <div className="mt-2.5 grid gap-2.5 md:grid-cols-[minmax(0,0.34fr)_minmax(0,0.66fr)]">
+                            <div className="rounded-[1rem] border border-border/70 bg-[#fcf8f1] px-3 py-2.5">
+                              <p className="eyebrow-label">Self-review summary</p>
+                              <p className="mt-2 text-sm leading-6 text-[#3a3027]">
+                                {heroSelfReviewExcerpt}
+                              </p>
+                            </div>
+
+                            <div className="rounded-[1rem] border border-white/10 bg-[#221b16] px-3 py-2.5 text-[#f7f1e8]">
+                              <div className="grid gap-2 sm:grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)]">
+                                <div>
+                                  <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
+                                    Before
+                                  </p>
+                                  <p className="mt-2 text-sm leading-6 text-[#f0e6d8]">
+                                    Helped stabilize CI and wrote some notes for the team.
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
+                                    Resume bullet
+                                  </p>
+                                  <p className="mt-2 text-sm leading-6 text-[#f7f1e8]">
+                                    {generatedResumeBullet}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </CardContent>
                     </Card>
-
-                    <div className="grid gap-4 md:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)]">
-                      <Card
-                        variant="document"
-                        className="overflow-hidden rounded-[1.85rem] border border-white/75"
-                      >
-                        <CardContent className="space-y-3 pt-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <p className="eyebrow-label">Supporting draft</p>
-                            <Badge variant="accent">Generated</Badge>
-                          </div>
-                          <p className="font-display text-[1.35rem] leading-none tracking-[-0.04em] text-foreground">
-                            {heroSelfReviewPreview?.label ?? "Self-review"}
-                          </p>
-                          <pre className="max-h-[8rem] overflow-hidden whitespace-pre-wrap font-sans text-[0.87rem] leading-6 text-[#2d241b]">
-                            {takeDocumentExcerpt(heroSelfReviewPreview?.excerpt ?? "", 4)}
-                          </pre>
-                        </CardContent>
-                      </Card>
-
-                      <Card
-                        variant="feature"
-                        className="overflow-hidden rounded-[1.85rem] border border-white/10"
-                      >
-                        <CardContent className="space-y-4 pt-4">
-                          <div className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3">
-                            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
-                              Before
-                            </p>
-                            <p className="mt-2 text-sm leading-6 text-[#f0e6d8]">
-                              Helped stabilize CI and wrote some notes for the team.
-                            </p>
-                          </div>
-                          <div className="rounded-[1.2rem] border border-white/10 bg-white/8 px-4 py-3">
-                            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
-                              After
-                            </p>
-                            <p className="mt-2 text-sm leading-6 text-[#f7f1e8]">
-                              {generatedResumeBullet}
-                            </p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
                   </div>
                 </div>
               </Card>
