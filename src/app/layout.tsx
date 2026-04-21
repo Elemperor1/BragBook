@@ -22,7 +22,12 @@ const newsreader = Newsreader({
   display: "swap",
 });
 
+const metadataBase = process.env.VERCEL_URL
+  ? new URL(`https://${process.env.VERCEL_URL}`)
+  : new URL("http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase,
   title: {
     default: "BragBook",
     template: "%s | BragBook",

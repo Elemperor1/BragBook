@@ -13,65 +13,59 @@ import { demoEntries } from "@/lib/demo-entries";
 import { generateOutput } from "@/lib/generator";
 import { cn } from "@/lib/utils/cn";
 
-const heroProofStrip = [
-  "Capture in minutes",
-  "Proof-backed outputs",
+const heroSignals = [
+  "Promotion-ready proof",
+  "Review season without archaeology",
   "Browser-local by default",
   "No account required",
 ] as const;
 
-const evidenceLossRows = [
-  "You remember the project, but not the details that make the work promotable.",
-  "Review season becomes archaeology through Slack threads, docs, screenshots, and old dashboards.",
-  "Resume bullets weaken when the strongest proof was never saved in one place.",
-  "Interview stories lose credibility when outcomes and evidence are reconstructed from memory.",
+const painPoints = [
+  "The project was important, but the details that made it promotable were never captured.",
+  "Review season turns into reconstructing proof from Slack threads, docs, dashboards, and memory.",
+  "Resume bullets flatten when the measurable outcome and personal ownership are missing.",
+  "Interview stories lose credibility when proof and context are rebuilt months later.",
 ] as const;
 
-const captureSteps = [
+const workflowSteps = [
   {
     step: "01",
-    title: "Capture the work while it is still easy to recover.",
+    title: "Capture the win while the evidence is still fresh.",
     description:
-      "Save the situation, action, result, metric, and stakeholders before the context diffuses across tools and meetings.",
+      "Save the situation, action, result, metric, stakeholders, and proof before the work diffuses across tools and meetings.",
   },
   {
     step: "02",
-    title: "Attach the proof that makes the story defensible.",
+    title: "Keep the source material structured.",
     description:
-      "Screenshots, praise, before-and-after notes, and artifact links stay with the entry instead of living in separate tabs.",
+      "Screenshots, praise, artifacts, before-and-after notes, and tags stay attached to the accomplishment instead of scattered across tabs.",
   },
   {
     step: "03",
-    title: "Generate serious drafts from a real source of truth.",
+    title: "Turn proof into serious career documents.",
     description:
-      "Promotion packets, self-reviews, resume bullets, and STAR interview stories stay specific because they start from structured evidence.",
+      "Promotion packets, self-reviews, resume bullets, and STAR stories stay specific because they start from a saved evidence base.",
   },
 ] as const;
 
-const evidencePacketFields = [
-  "Situation and scope",
-  "Action you personally drove",
-  "Result and measurable outcome",
-  "Stakeholders and visibility",
-  "Screenshots, praise, and artifacts",
-  "Tags that make the work reusable later",
-] as const;
-
-const trustStatements = [
+const trustLedger = [
   {
-    title: "Stored in this browser",
+    label: "Storage",
+    value: "This browser",
     description:
-      "Entries and saved proof stay in local browser storage on this device unless you choose to export them.",
+      "Entries and saved proof stay in local browser storage on this device unless you export them.",
   },
   {
-    title: "You keep the backup",
+    label: "Backup",
+    value: "Your JSON file",
     description:
-      "Export and restore a JSON backup when you want safekeeping, migration, or a clean handoff between devices.",
+      "Export a portable backup for safekeeping, browser cleanup, or moving to another device.",
   },
   {
-    title: "No accounts or sync required",
+    label: "Access",
+    value: "No account",
     description:
-      "No billing, no logins, and no cloud setup between you and the first entry that matters.",
+      "No login, billing, team workspace, or cloud setup is required to capture the first useful entry.",
   },
 ] as const;
 
@@ -84,23 +78,24 @@ type ExampleOutput = {
 };
 
 const heroEntry = demoEntries.find((entry) => entry.id === "demo-ci-lane") ?? demoEntries[0];
-const heroProofItems = heroEntry.proofItems.slice(0, 1);
-const heroStakeholders = heroEntry.stakeholders.slice(0, 2);
+const heroProofItems = heroEntry.proofItems.slice(0, 2);
 const careerAssetEntries = demoEntries.slice(0, 3);
-const heroEntryDisplayTitle = "Stabilized CI for monorepo builds";
 
-function marketingButtonStyles(kind: "primary" | "secondary") {
+function marketingButtonStyles(
+  kind: "primary" | "secondary",
+  className?: string,
+) {
   if (kind === "primary") {
     return buttonStyles({
       size: "lg",
-      className: "min-w-44 px-6",
+      className: cn("w-full px-5 tracking-normal sm:w-auto sm:min-w-44 sm:px-6", className),
     });
   }
 
   return buttonStyles({
     variant: "secondary",
     size: "lg",
-    className: "min-w-44 px-6",
+    className: cn("w-full px-5 tracking-normal sm:w-auto sm:min-w-44 sm:px-6", className),
   });
 }
 
@@ -130,14 +125,14 @@ function firstBulletLine(content: string) {
     content
       .split("\n")
       .find((line) => line.trim().startsWith("- ")) ??
-    "Saved the win with a real outcome instead of a vague reminder."
+    "Saved the win with a measurable outcome, clear ownership, and proof attached."
   );
 }
 
-function truncateText(content: string, maxLength: number) {
-  const normalized = content.replace(/\s+/g, " ").trim();
+function truncateText(content: string | null | undefined, maxLength: number) {
+  const normalized = content?.replace(/\s+/g, " ").trim() ?? "";
   return normalized.length > maxLength
-    ? `${normalized.slice(0, maxLength - 1).trimEnd()}…`
+    ? `${normalized.slice(0, maxLength - 1).trimEnd()}...`
     : normalized;
 }
 
@@ -199,32 +194,16 @@ function buildExampleOutputs() {
 const exampleOutputs = buildExampleOutputs();
 const promotionPacketPreview = exampleOutputs[0];
 const supportingOutputPreviews = exampleOutputs.slice(1);
-const heroSelfReviewPreview = supportingOutputPreviews[0];
-const heroOutcomeSnapshot = truncateText(
-  heroEntry.result ?? "Saved with clear impact, ownership, and visible business value.",
-  94,
-);
-const heroMetricSummary = "18% -> 3% in one sprint";
-const heroProofSummary = truncateText(
-  heroProofItems[0]?.metric ?? heroProofItems[0]?.summary ?? "",
-  54,
+const resumeBullet = truncateText(
+  firstBulletLine(supportingOutputPreviews[1]?.excerpt ?? "").replace(/^- /, ""),
+  118,
 );
 const heroPromotionSummary = truncateText(
   promotionPacketPreview.excerpt.replace(/\s+/g, " "),
-  190,
-);
-const heroSelfReviewExcerpt = truncateText(
-  takeDocumentExcerpt(heroSelfReviewPreview?.excerpt ?? "", 2)
-    .replace(/^Self-review\s*/i, "")
-    .replace(/\n+/g, " "),
-  42,
-);
-const generatedResumeBullet = truncateText(
-  firstBulletLine(supportingOutputPreviews[1]?.excerpt ?? "").replace(/^- /, ""),
-  46,
+  330,
 );
 
-function OutputPreviewCard({
+function DocumentPreview({
   output,
   featured = false,
 }: {
@@ -235,34 +214,45 @@ function OutputPreviewCard({
     <Card
       variant="document"
       className={cn(
-        "overflow-hidden rounded-[2rem] border border-white/75",
-        featured ? "min-h-[29rem]" : "h-full",
+        "overflow-hidden rounded-[1.45rem] border border-white/80",
+        featured ? "self-start" : "h-full",
       )}
     >
-      <CardHeader className="border-b border-border/80 pb-4">
-        <div className="flex items-start justify-between gap-3">
+      <CardHeader
+        className={cn("border-b border-border/75 pb-4", featured ? "" : "p-5")}
+      >
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
             <CardEyebrow>{output.eyebrow}</CardEyebrow>
-            <CardTitle className={featured ? "text-[1.95rem]" : "text-[1.55rem]"}>
+            <CardTitle
+              className={cn(
+                "tracking-normal",
+                featured ? "text-[2.05rem]" : "text-[1.45rem]",
+              )}
+            >
               {output.label}
             </CardTitle>
           </div>
           <Badge variant={featured ? "accent" : "selected"}>{output.usedFor}</Badge>
         </div>
         <CardDescription className="text-[#5d5144]">
-          Generated from saved evidence instead of rebuilt from memory.
+          Generated from saved evidence, not rebuilt from memory.
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-4">
+      <CardContent
+        className={cn("pt-4", featured ? "" : "px-5 pb-5 md:px-5 md:pb-5")}
+      >
         <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
           <span>BragBook document</span>
           <span>{output.documentLabel}</span>
         </div>
-        <div className="mt-4 h-px bg-border/80" />
+        <div className="mt-4 h-px bg-border/75" />
         <pre
           className={cn(
             "mt-4 whitespace-pre-wrap font-sans text-[#2d241b]",
-            featured ? "document-prose max-h-[19rem] overflow-hidden" : "max-h-[12rem] overflow-hidden text-[0.92rem] leading-7",
+            featured
+              ? "document-prose max-h-[19.5rem] overflow-hidden"
+              : "max-h-[9.5rem] overflow-hidden text-[0.92rem] leading-7",
           )}
         >
           {output.excerpt}
@@ -272,310 +262,381 @@ function OutputPreviewCard({
   );
 }
 
+function EvidencePacketPanel() {
+  return (
+    <div className="self-start overflow-hidden rounded-[1.45rem] bg-[#15110e] text-[#f8efe3] shadow-[0_24px_52px_rgba(21,17,14,0.18)]">
+      <div className="border-b border-white/10 px-6 py-5">
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#cdbda9]">
+          Source evidence packet
+        </p>
+        <h3 className="mt-3 font-display text-[2rem] leading-[0.96] tracking-normal text-[#fff7ed]">
+          One saved win, structured enough to reuse.
+        </h3>
+      </div>
+      <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-1">
+        <div className="border-b border-white/10 px-6 py-4 sm:border-b-0 sm:border-r lg:border-b lg:border-r-0">
+          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#cdbda9]">
+            Accomplishment
+          </p>
+          <p className="mt-2 text-sm font-semibold leading-6 text-[#fff7ed]">
+            Stabilized CI for monorepo builds
+          </p>
+        </div>
+        <div className="border-b border-white/10 px-6 py-4">
+          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#cdbda9]">
+            Measurable outcome
+          </p>
+          <p className="mt-2 text-sm font-semibold leading-6 text-[#fff7ed]">
+            Failure rate dropped from 18% to 3% within one sprint.
+          </p>
+        </div>
+        <div className="px-6 py-4 sm:col-span-2 lg:col-span-1">
+          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#cdbda9]">
+            Becomes
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {exampleOutputs.map((output) => (
+              <Badge key={output.label} variant="feature">
+                {output.label}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EvidenceField({
+  label,
+  value,
+  emphasis = false,
+}: {
+  label: string;
+  value: string;
+  emphasis?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "border-t border-[#ded0bf] py-3 first:border-t-0",
+        emphasis ? "text-[#15110e]" : "text-[#4d4237]",
+      )}
+    >
+      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#8c7a68]">
+        {label}
+      </p>
+      <p className="mt-1.5 text-sm leading-6">{value}</p>
+    </div>
+  );
+}
+
+function TrustLedgerItem({
+  label,
+  value,
+  description,
+}: {
+  label: string;
+  value: string;
+  description: string;
+}) {
+  return (
+    <div className="grid gap-3 border-t border-border/75 py-5 first:border-t-0 md:grid-cols-[0.32fr_0.3fr_1fr] md:items-start">
+      <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
+        {label}
+      </p>
+      <p className="font-display text-[1.45rem] leading-none tracking-normal text-foreground">
+        {value}
+      </p>
+      <p className="text-sm leading-7 text-muted-foreground">{description}</p>
+    </div>
+  );
+}
+
 export function LandingPage() {
   return (
-    <main className="overflow-hidden pb-8">
-      <section className="relative isolate overflow-hidden px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pb-22 lg:pt-8">
-        <div className="absolute inset-x-0 top-0 h-[42rem] bg-[radial-gradient(circle_at_top_left,rgba(154,103,51,0.18),transparent_26rem),radial-gradient(circle_at_85%_15%,rgba(23,19,16,0.08),transparent_26rem)]" />
-        <div className="absolute left-[10%] top-24 h-48 w-48 rounded-full bg-white/25 blur-3xl" />
-        <div className="absolute right-[10%] top-12 h-64 w-64 rounded-full bg-accent/12 blur-3xl" />
+    <main className="overflow-hidden bg-[#f3ece2] pb-8">
+      <section className="relative isolate overflow-hidden bg-[#15110e] px-4 py-6 text-[#f7f1e8] sm:px-6 lg:min-h-[92svh] lg:px-8 lg:py-8">
+        <div className="absolute inset-y-0 right-0 hidden w-[55vw] bg-[#eadfce] lg:block" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,#15110e_0%,#15110e_48%,rgba(21,17,14,0.52)_62%,transparent_100%)]" />
+        <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:72px_72px]" />
 
-        <div className="relative mx-auto max-w-[1240px]">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.68fr)_minmax(0,1.32fr)] lg:items-start xl:gap-8">
-            <div className="space-y-6">
-              <Badge variant="selected" className="px-4 py-2">
+        <div className="relative mx-auto grid w-full min-w-0 max-w-[1280px] gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:items-center">
+          <div className="w-[min(100%,358px)] min-w-0 max-w-2xl space-y-6 py-7 sm:w-auto lg:space-y-7 lg:py-12">
+            <div className="space-y-2">
+              <p className="font-mono text-[11px] uppercase tracking-[0.34em] text-[#cdbda9]">
+                BragBook
+              </p>
+              <Badge variant="feature" className="px-4 py-2">
                 Private career evidence vault
               </Badge>
-
-              <div className="space-y-5">
-                <h1 className="max-w-[10.5ch] font-display text-[clamp(2.6rem,4vw,3.95rem)] leading-[0.92] tracking-[-0.06em] text-foreground">
-                  Keep the proof behind the work that should advance your career.
-                </h1>
-                <p className="max-w-2xl text-[1.02rem] leading-7 text-[#4e4337] sm:text-[1.08rem]">
-                  Capture wins while the details are fresh, then turn them into
-                  promotion packets, self-reviews, resume bullets, and interview
-                  stories.
-                </p>
-                <p className="max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
-                  Built for ambitious professionals who want stronger evidence,
-                  cleaner narratives, and less end-of-cycle reconstruction.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Link href="/dashboard" className={marketingButtonStyles("primary")}>
-                  Open the app
-                </Link>
-                <Link
-                  href="#proof-to-draft"
-                  className={marketingButtonStyles("secondary")}
-                >
-                  See proof-to-draft examples
-                </Link>
-              </div>
-
-              <div className="grid max-w-[29rem] gap-x-7 gap-y-2.5 sm:grid-cols-2">
-                {heroProofStrip.map((point) => (
-                  <div key={point} className="flex items-center gap-3">
-                    <span className="h-2 w-2 rounded-full bg-accent" />
-                    <p className="text-sm font-semibold tracking-[-0.01em] text-foreground">
-                      {point}
-                    </p>
-                  </div>
-                ))}
-              </div>
             </div>
 
-            <div className="relative">
-              <Card
-                variant="elevated"
-                className="overflow-hidden rounded-[2.85rem] border border-white/80 bg-[linear-gradient(180deg,rgba(255,252,247,0.95),rgba(247,241,232,0.9))]"
+            <div className="space-y-5">
+              <h1 className="max-w-full text-balance font-display text-[3.35rem] leading-[0.84] tracking-normal text-[#fff7ed] sm:max-w-[9.6ch] sm:text-[5.3rem] lg:text-[6.15rem] xl:text-[7rem]">
+                Turn your best work into career leverage.
+              </h1>
+              <p className="w-full max-w-full text-[1.04rem] leading-8 text-[#eadccb] sm:max-w-[39rem] sm:text-[1.22rem]">
+                Capture proof while the details are fresh, then turn it into
+                promotion packets, self-reviews, resume bullets, and interview
+                stories from evidence you own.
+              </p>
+            </div>
+
+            <div className="flex w-full flex-wrap gap-3 sm:w-fit">
+              <Link
+                href="/dashboard"
+                className={marketingButtonStyles(
+                  "primary",
+                  "bg-[#fff7ed] text-[#15110e] hover:bg-white focus-visible:ring-white/30",
+                )}
               >
-                <div className="flex items-center justify-between border-b border-border/70 px-6 py-4 lg:px-7">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-[#d9b48c]" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-[#d7d0c5]" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-[#c4baad]" />
-                    </div>
-                    <p className="font-mono text-[11px] uppercase tracking-[0.26em] text-muted-foreground">
-                      BragBook workspace
+                Open BragBook
+              </Link>
+              <Link
+                href="#proof-to-output"
+                className={marketingButtonStyles(
+                  "secondary",
+                  "bg-transparent text-[#fff7ed] ring-1 ring-white/25 hover:bg-white/10 hover:text-white focus-visible:ring-white/30",
+                )}
+              >
+                See proof-to-output examples
+              </Link>
+            </div>
+
+            <div className="grid max-w-[36rem] grid-cols-1 gap-x-5 gap-y-3 border-t border-white/10 pt-5 sm:grid-cols-2 sm:gap-x-7">
+              {heroSignals.map((point) => (
+                <div key={point} className="flex items-center gap-3">
+                  <span className="h-px w-8 bg-[#c9975c]" />
+                  <p className="text-sm font-semibold tracking-normal text-[#f7f1e8]">
+                    {point}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative min-w-0 pb-4 lg:pb-0">
+            <div className="mx-auto w-[min(100%,358px)] min-w-0 max-w-full overflow-hidden rounded-[2rem] border border-[#fff5e6]/80 bg-[#f8efe3] text-[#1f1914] shadow-[0_36px_90px_rgba(0,0,0,0.32)] sm:w-full sm:max-w-[760px] lg:translate-x-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#d9c9b8] bg-[#fff8ee] px-5 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#c98d58]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#d7c7b7]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#8f7e6c]" />
+                  </div>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#766655]">
+                    BragBook workspace
+                  </p>
+                </div>
+                <Badge variant="selected">Evidence to output</Badge>
+              </div>
+
+              <div className="grid gap-0 lg:grid-cols-[0.43fr_0.57fr]">
+                <div className="border-b border-[#dccdba] bg-[#f2e6d7] p-5 lg:border-b-0 lg:border-r">
+                  <div className="space-y-2">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#806f5e]">
+                      Saved accomplishment
+                    </p>
+                    <h2 className="font-display text-[2rem] leading-[0.96] tracking-normal text-[#171310]">
+                      Stabilized CI for monorepo builds
+                    </h2>
+                    <p className="text-sm leading-6 text-[#5a4b3f]">
+                      The raw material behind a stronger promotion case.
                     </p>
                   </div>
-                  <Badge variant="selected">Browser-local by default</Badge>
+
+                  <div className="mt-5 rounded-[1.25rem] border border-[#dac9b5] bg-[#fff9ef] px-4 py-3">
+                    <EvidenceField
+                      label="Situation"
+                      value={truncateText(heroEntry.situation, 126)}
+                    />
+                    <EvidenceField
+                      label="Action"
+                      value={truncateText(heroEntry.action, 126)}
+                    />
+                    <EvidenceField
+                      label="Result"
+                      value={truncateText(heroEntry.result, 116)}
+                    />
+                    <EvidenceField
+                      label="Metric"
+                      value={heroEntry.metric ?? "Measurable outcome attached."}
+                      emphasis
+                    />
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Badge variant="success">Strong proof</Badge>
+                    {heroEntry.stakeholders.slice(0, 2).map((stakeholder) => (
+                      <Badge key={stakeholder} variant="subtle">
+                        {stakeholder}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="space-y-3 p-4 lg:p-5">
-                  <div className="flex items-center justify-between gap-4">
+                <div className="bg-[#fbf5ec] p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <p className="eyebrow-label">Capture to career asset</p>
-                      <p className="mt-2 text-sm leading-6 text-[#5f5347]">
-                        Structured evidence in, promotion-ready draft out.
+                      <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#806f5e]">
+                        Generated draft
+                      </p>
+                      <h2 className="mt-2 font-display text-[2.25rem] leading-[0.93] tracking-normal text-[#171310]">
+                        Promotion packet
+                      </h2>
+                    </div>
+                    <Badge variant="accent">Editable</Badge>
+                  </div>
+
+                  <div className="mt-5 rounded-[1.35rem] border border-[#ded0bf] bg-[#fffbf5] px-5 py-4 shadow-[0_18px_36px_rgba(38,27,17,0.08)]">
+                    <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-[#8c7a68]">
+                      <span>Staff Engineer case</span>
+                      <span>3 entries used</span>
+                    </div>
+                    <div className="mt-3 h-px bg-[#e2d5c5]" />
+                    <p className="mt-4 text-[0.98rem] leading-7 text-[#30261f]">
+                      {heroPromotionSummary}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 md:grid-cols-[0.42fr_0.58fr]">
+                    <div className="rounded-[1.1rem] border border-[#ded0bf] bg-[#f4eadc] px-4 py-3">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#806f5e]">
+                        Proof attached
+                      </p>
+                      <p className="mt-2 text-sm font-semibold leading-6 text-[#171310]">
+                        {heroProofItems.length} evidence items
                       </p>
                     </div>
-                    <p className="hidden text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground md:block">
-                      Saved evidence to editable draft
+                    <div className="rounded-[1.1rem] border border-[#2b211b] bg-[#18130f] px-4 py-3 text-[#f8efe3]">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#d4bfa8]">
+                        Before
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-[#eadccb]">
+                        Helped stabilize CI and wrote notes for the team.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 rounded-[1.1rem] border border-[#d7c5af] bg-[#fff9ef] px-4 py-3">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#806f5e]">
+                      Resume bullet
+                    </p>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-[#171310]">
+                      {resumeBullet}
                     </p>
                   </div>
-
-                  <div className="grid gap-3 xl:grid-cols-[minmax(0,0.31fr)_minmax(0,0.69fr)] xl:items-stretch">
-                    <div className="rounded-[1.7rem] border border-white/75 bg-white/78 px-3.5 py-3.5 shadow-[0_16px_28px_rgba(29,20,13,0.05)]">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="eyebrow-label">Saved entry</p>
-                          <p className="mt-2 max-w-[9ch] font-display text-[1.24rem] leading-[1.02] tracking-[-0.04em] text-foreground">
-                            {heroEntryDisplayTitle}
-                          </p>
-                        </div>
-                        <Badge variant="success" className="px-2.5 py-1">
-                          Strong proof
-                        </Badge>
-                      </div>
-
-                      <div className="mt-3 rounded-[1.05rem] border border-white/65 bg-[#fcf8f1] px-3 py-2.5">
-                        <p className="eyebrow-label">Outcome snapshot</p>
-                        <p className="mt-2 text-sm leading-6 text-[#44392d]">
-                          {heroOutcomeSnapshot}
-                        </p>
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <div className="rounded-full border border-white/65 bg-white/85 px-3 py-1.5">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                            Project
-                          </p>
-                          <p className="mt-1 text-sm font-semibold text-foreground">
-                            {heroEntry.project}
-                          </p>
-                        </div>
-                        <div className="rounded-full border border-white/65 bg-white/85 px-3 py-1.5">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                            Metric
-                          </p>
-                          <p className="mt-1 text-sm font-semibold text-foreground">
-                            {heroMetricSummary}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 rounded-[1rem] border border-border/70 bg-[#f9f3ea] px-3 py-2.5">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="eyebrow-label">Proof attached</p>
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                            {heroProofItems.length} item
-                          </p>
-                        </div>
-                        <p className="mt-2 text-sm font-semibold text-foreground">
-                          {heroProofItems[0]?.title}
-                        </p>
-                        <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                          {heroProofSummary}
-                        </p>
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap gap-1.5">
-                        {heroStakeholders.map((stakeholder) => (
-                          <Badge key={stakeholder} variant="subtle" className="px-2.5 py-1">
-                            {stakeholder}
-                          </Badge>
-                        ))}
-                        {heroEntry.tags.slice(0, 1).map((tag) => (
-                          <Badge key={tag} variant="subtle" className="px-2.5 py-1">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-
-                    <Card
-                      variant="document"
-                      className="overflow-hidden rounded-[2rem] border border-white/75"
-                    >
-                      <CardHeader className="border-b border-border/80 pb-3.5">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <div className="flex flex-wrap gap-2">
-                            <Badge variant="accent" className="px-2.5 py-1">
-                              Promotion packet
-                            </Badge>
-                            <Badge variant="selected" className="px-2.5 py-1">
-                              Staff Engineer case
-                            </Badge>
-                          </div>
-                          <Badge variant="subtle" className="px-2.5 py-1">
-                            Proof-backed draft
-                          </Badge>
-                        </div>
-
-                        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
-                          <div className="space-y-2">
-                            <CardEyebrow>Primary output</CardEyebrow>
-                            <CardTitle className="text-[1.55rem]">
-                              Case for Staff Engineer
-                            </CardTitle>
-                            <CardDescription className="max-w-[34rem] text-[14px] leading-6 text-[#5d5144]">
-                              One promotion-ready narrative built from saved accomplishments, proof, and visible outcomes.
-                            </CardDescription>
-                          </div>
-                          <div className="rounded-full border border-border/70 bg-[#fcf8f1] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                            Editable
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-3 pt-3.5">
-                        <div className="rounded-[1.2rem] border border-border/70 bg-[#fcf8f1] px-4 py-3.5">
-                          <p className="eyebrow-label">Draft excerpt</p>
-                          <p className="mt-2 text-[0.96rem] leading-7 text-[#2d241b]">
-                            {heroPromotionSummary}
-                          </p>
-                        </div>
-
-                        <div className="grid gap-2 sm:grid-cols-3">
-                          <div className="rounded-[1.05rem] border border-border/70 bg-[#fcf8f1] px-3 py-2.5">
-                            <p className="eyebrow-label">Entries used</p>
-                            <p className="mt-1.5 text-sm font-semibold text-foreground">
-                              3 strong accomplishments
-                            </p>
-                          </div>
-                          <div className="rounded-[1.05rem] border border-border/70 bg-[#fcf8f1] px-3 py-2.5">
-                            <p className="eyebrow-label">Frame</p>
-                            <p className="mt-1.5 text-sm font-semibold text-foreground">
-                              Competency-based case
-                            </p>
-                          </div>
-                          <div className="rounded-[1.05rem] border border-border/70 bg-[#fcf8f1] px-3 py-2.5">
-                            <p className="eyebrow-label">Use next</p>
-                            <p className="mt-1.5 text-sm font-semibold text-foreground">
-                              Promotion conversation
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="rounded-[1.15rem] border border-border/70 bg-white/82 px-3.5 py-3">
-                          <div className="flex flex-wrap items-center justify-between gap-3">
-                            <p className="eyebrow-label">Also generated</p>
-                            <div className="flex flex-wrap gap-2">
-                              <Badge variant="selected" className="px-2.5 py-1">
-                                Self-review
-                              </Badge>
-                              <Badge variant="subtle" className="px-2.5 py-1">
-                                Resume bullets
-                              </Badge>
-                              <Badge variant="subtle" className="px-2.5 py-1">
-                                STAR stories
-                              </Badge>
-                            </div>
-                          </div>
-
-                          <div className="mt-2.5 grid gap-2.5 md:grid-cols-[minmax(0,0.34fr)_minmax(0,0.66fr)]">
-                            <div className="rounded-[1rem] border border-border/70 bg-[#fcf8f1] px-3 py-2.5">
-                              <p className="eyebrow-label">Self-review summary</p>
-                              <p className="mt-2 text-sm leading-6 text-[#3a3027]">
-                                {heroSelfReviewExcerpt}
-                              </p>
-                            </div>
-
-                            <div className="rounded-[1rem] border border-white/10 bg-[#221b16] px-3 py-2.5 text-[#f7f1e8]">
-                              <div className="grid gap-2 sm:grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)]">
-                                <div>
-                                  <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
-                                    Before
-                                  </p>
-                                  <p className="mt-2 text-sm leading-6 text-[#f0e6d8]">
-                                    Helped stabilize CI and wrote some notes for the team.
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#cfbea9]">
-                                    Resume bullet
-                                  </p>
-                                  <p className="mt-2 text-sm leading-6 text-[#f7f1e8]">
-                                    {generatedResumeBullet}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
                 </div>
-              </Card>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-        <div className="mx-auto max-w-[1240px] overflow-hidden rounded-[2.9rem] bg-[#171310] shadow-[0_36px_80px_rgba(17,13,10,0.22)]">
-          <div className="grid gap-10 px-6 py-8 lg:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-9">
+      <section className="bg-[#15110e] px-4 py-16 text-[#f7f1e8] sm:px-6 lg:px-8 lg:py-20">
+        <div className="mx-auto grid max-w-[1240px] gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+          <div className="space-y-5">
+            <p className="font-mono text-[11px] uppercase tracking-[0.34em] text-[#cdbda9]">
+              Why it matters
+            </p>
+            <h2 className="section-title tracking-normal text-[#fff7ed]">
+              Career evidence disappears before you need it.
+            </h2>
+            <p className="max-w-xl text-base leading-7 text-[#cdbda9]">
+              The best work often happens in the messy middle: incidents,
+              migrations, escalations, launches, and quiet fixes. BragBook keeps
+              those details from becoming vague memories.
+            </p>
+          </div>
+
+          <div className="border-y border-white/10">
+            {painPoints.map((point, index) => (
+              <div
+                key={point}
+                className="grid gap-4 border-t border-white/10 py-5 first:border-t-0 md:grid-cols-[auto_1fr] md:items-start"
+              >
+                <span className="font-display text-[2rem] leading-none tracking-normal text-[#c9975c]">
+                  0{index + 1}
+                </span>
+                <p className="max-w-3xl text-[1.05rem] leading-8 text-[#f1e5d6]">
+                  {point}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="proof-to-output"
+        className="px-4 py-20 sm:px-6 lg:px-8 lg:py-24"
+      >
+        <div className="mx-auto max-w-[1240px] space-y-8">
+          <div className="grid gap-6 lg:grid-cols-[0.74fr_0.56fr] lg:items-end">
             <div className="space-y-4">
-              <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[#cfbea9]">
-                Why evidence disappears
-              </p>
-              <h2 className="section-title text-[#f7f1e8]">
-                Career evidence disappears into scattered artifacts.
+              <p className="eyebrow-label">Proof to output examples</p>
+              <h2 className="section-title max-w-3xl tracking-normal text-foreground">
+                One evidence packet can become every career document you need next.
               </h2>
-              <p className="max-w-2xl text-base leading-7 text-[#cfbea9]">
-                By the time you need a clean promotion or review narrative, the
-                strongest details are fragmented across tools, timelines, and
-                half-remembered context.
+              <p className="support-copy max-w-xl">
+                Structured proof becomes promotion packets, self-reviews, resume
+                bullets, and interview stories without turning vague or
+                repetitive.
+              </p>
+            </div>
+            <div className="border-l-2 border-accent pl-5">
+              <p className="text-sm font-semibold leading-7 text-foreground">
+                The conversion value is specificity: ownership, context,
+                measurable outcomes, and proof travel together into each draft.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid items-start gap-5 lg:grid-cols-[1.08fr_0.72fr]">
+            <DocumentPreview output={promotionPacketPreview} featured />
+            <EvidencePacketPanel />
+          </div>
+
+          <div className="grid items-start gap-4 md:grid-cols-3">
+            {supportingOutputPreviews.map((output) => (
+              <DocumentPreview key={output.label} output={output} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="grid gap-10 lg:grid-cols-[0.36fr_0.64fr] lg:items-start">
+            <div className="space-y-4">
+              <p className="eyebrow-label">How the habit works</p>
+              <h2 className="section-title tracking-normal text-foreground">
+                Less journaling. More reusable proof.
+              </h2>
+              <p className="support-copy">
+                BragBook is designed around the handful of facts that make work
+                promotable later.
               </p>
             </div>
 
-            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/4">
-              {evidenceLossRows.map((point, index) => (
+            <div className="border-y border-border-strong">
+              {workflowSteps.map((step) => (
                 <div
-                  key={point}
-                  className={cn(
-                    "grid gap-3 px-5 py-5 md:grid-cols-[auto_1fr] md:items-start",
-                    index > 0 ? "border-t border-white/10" : "",
-                  )}
+                  key={step.step}
+                  className="grid gap-5 border-t border-border/80 py-6 first:border-t-0 md:grid-cols-[6rem_1fr]"
                 >
-                  <span className="font-display text-[1.55rem] leading-none tracking-[-0.04em] text-[#f7f1e8]">
-                    0{index + 1}
-                  </span>
-                  <p className="text-base leading-7 text-[#f0e6d8]">{point}</p>
+                  <p className="font-display text-[3.5rem] leading-none tracking-normal text-accent">
+                    {step.step}
+                  </p>
+                  <div className="space-y-2">
+                    <h3 className="font-display text-[1.75rem] leading-[1.02] tracking-normal text-foreground">
+                      {step.title}
+                    </h3>
+                    <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
+                      {step.description}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -583,210 +644,56 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section
-        id="proof-to-draft"
-        className="px-4 py-20 sm:px-6 lg:px-8 lg:py-24"
-      >
-        <div className="mx-auto max-w-[1240px] space-y-8">
-          <div className="grid gap-8 xl:grid-cols-[0.72fr_1.28fr] xl:items-start">
-            <div className="space-y-4">
-              <p className="eyebrow-label">Proof to draft examples</p>
-              <h2 className="section-title text-foreground">
-                One evidence packet can become four serious career assets.
-              </h2>
-              <p className="support-copy max-w-xl">
-                BragBook keeps a single source of truth for the accomplishment,
-                then reshapes it for the document you need next.
-              </p>
-              <div className="rounded-[1.75rem] border border-border/80 bg-white/60 px-5 py-5">
-                <p className="text-sm font-semibold text-foreground">
-                  Structured proof becomes promotion packets, self-reviews,
-                  resume bullets, and interview stories without turning vague or
-                  repetitive.
-                </p>
-              </div>
-            </div>
+      <section className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div className="mx-auto grid max-w-[1180px] gap-10 rounded-[2rem] border border-white/80 bg-[#fff8ee] px-6 py-7 shadow-[0_24px_56px_rgba(28,20,13,0.1)] lg:grid-cols-[0.38fr_0.62fr] lg:px-8 lg:py-9">
+          <div className="space-y-4">
+            <p className="eyebrow-label">Privacy and ownership</p>
+            <h2 className="section-title tracking-normal text-foreground">
+              Your career evidence should feel owned, not borrowed.
+            </h2>
+            <p className="support-copy">
+              The trust model is simple enough to scan: local storage for daily
+              use, exportable backups for control.
+            </p>
+          </div>
 
-            <div className="grid gap-5 xl:grid-cols-[1.06fr_0.94fr]">
-              <OutputPreviewCard output={promotionPacketPreview} featured />
-              <div className="grid gap-4">
-                {supportingOutputPreviews.map((output) => (
-                  <OutputPreviewCard key={output.label} output={output} />
-                ))}
-              </div>
-            </div>
+          <div className="border-y border-border/80">
+            {trustLedger.map((item) => (
+              <TrustLedgerItem key={item.label} {...item} />
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
-        <div className="mx-auto max-w-[1240px]">
-          <div className="grid gap-6 lg:grid-cols-[0.96fr_1.04fr]">
-            <Card variant="feature" className="rounded-[2.7rem] border border-white/10">
-              <CardHeader className="space-y-4">
-                <CardEyebrow className="text-[#cfbea9]">What BragBook captures</CardEyebrow>
-                <CardTitle className="text-[2.25rem] text-[#f7f1e8]">
-                  Built for the work between delivery and recognition.
-                </CardTitle>
-                <CardDescription className="text-[#cfbea9]">
-                  The point is not to save a vague memory. The point is to keep
-                  the evidence base that makes the work reusable later.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {captureSteps.map((step) => (
-                  <div
-                    key={step.step}
-                    className="rounded-[1.6rem] border border-white/10 bg-white/5 px-5 py-5"
-                  >
-                    <div className="flex items-start gap-4">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/10 text-sm font-semibold text-[#f7f1e8]">
-                        {step.step}
-                      </span>
-                      <div className="space-y-2">
-                        <h3 className="font-display text-[1.45rem] leading-[1.03] tracking-[-0.04em] text-[#f7f1e8]">
-                          {step.title}
-                        </h3>
-                        <p className="text-sm leading-7 text-[#cfbea9]">
-                          {step.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card variant="elevated" className="rounded-[2.7rem]">
-              <CardHeader className="space-y-4">
-                <CardEyebrow>Evidence packet anatomy</CardEyebrow>
-                <CardTitle className="text-[2.15rem]">
-                  The saved entry should already contain the raw materials.
-                </CardTitle>
-                <CardDescription>
-                  Every strong draft downstream depends on having the right facts,
-                  outcomes, and proof stored once.
-                </CardDescription>
-              </CardHeader>
-
-              <CardContent className="space-y-5">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {evidencePacketFields.map((field, index) => (
-                    <div
-                      key={field}
-                      className={cn(
-                        "rounded-[1.3rem] border px-4 py-4",
-                        index === 2
-                          ? "border-accent/20 bg-accent/8"
-                          : "border-border/70 bg-[#faf4eb]",
-                      )}
-                    >
-                      <p className="text-sm font-semibold text-foreground">{field}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="rounded-[1.7rem] border border-border/75 bg-[#f8f2e9] px-5 py-5">
-                  <p className="text-sm leading-7 text-[#4a4034]">
-                    This is what keeps the final output specific, credible, and
-                    reusable across review cycles, promotion packets, resumes,
-                    and interview prep.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-        <div className="mx-auto max-w-[1180px] rounded-[2.7rem] border border-white/75 bg-[linear-gradient(180deg,rgba(255,251,246,0.92),rgba(244,236,226,0.88))] shadow-[0_24px_52px_rgba(28,20,13,0.1)]">
-          <div className="grid gap-8 px-6 py-7 lg:grid-cols-[0.94fr_1.06fr] lg:px-8 lg:py-8">
-            <div className="space-y-5">
-              <div className="space-y-3">
-                <p className="eyebrow-label">Privacy and ownership</p>
-                <h2 className="section-title text-foreground">
-                  Clear local ownership, without defensive copy.
-                </h2>
-                <p className="support-copy">
-                  The privacy model is simple: your evidence stays here unless
-                  you decide a backup belongs somewhere else.
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                {trustStatements.map((statement) => (
-                  <div
-                    key={statement.title}
-                    className="rounded-[1.5rem] border border-white/70 bg-white/72 px-4 py-4"
-                  >
-                    <p className="text-sm font-semibold text-foreground">
-                      {statement.title}
-                    </p>
-                    <p className="mt-1 text-sm leading-7 text-muted-foreground">
-                      {statement.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <Card variant="document" className="rounded-[2.1rem] border border-white/75">
-              <CardHeader>
-                <CardEyebrow>Backup caveat</CardEyebrow>
-                <CardTitle className="text-[2rem]">
-                  Local-only works best when the backup story is explicit.
-                </CardTitle>
-                <CardDescription className="text-[#5d5144]">
-                  Export a JSON backup before browser cleanup, device changes, or
-                  switching browsers. Local browser storage is deliberate, but it
-                  is still local storage.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="rounded-[1.4rem] border border-border/70 bg-white/72 px-4 py-4">
-                  <p className="eyebrow-label">Practical default</p>
-                  <p className="mt-2 text-sm leading-7 text-[#4a4034]">
-                    Raw notes, screenshots, and praise stay on this device until
-                    you decide a backup belongs somewhere else.
-                  </p>
-                </div>
-                <div className="rounded-[1.4rem] border border-warning/25 bg-warning/10 px-4 py-4">
-                  <p className="text-sm leading-7 text-[#4a4034]">
-                    If the stored proof matters, export the backup before doing
-                    anything that clears local browser data.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 pb-24 pt-6 sm:px-6 lg:px-8 lg:pt-10">
-        <div className="mx-auto max-w-[1180px] overflow-hidden rounded-[2.9rem] bg-[#171310] shadow-[0_36px_80px_rgba(17,13,10,0.24)]">
-          <div className="grid gap-8 px-6 py-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-8 lg:py-9">
+      <section className="px-4 pb-24 pt-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1180px] overflow-hidden rounded-[2rem] bg-[#15110e] text-[#f7f1e8] shadow-[0_36px_80px_rgba(17,13,10,0.24)]">
+          <div className="grid gap-8 px-6 py-9 lg:grid-cols-[1fr_auto] lg:items-end lg:px-9 lg:py-10">
             <div className="max-w-3xl space-y-4">
-              <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[#cfbea9]">
-                Final CTA
+              <p className="font-mono text-[11px] uppercase tracking-[0.34em] text-[#cdbda9]">
+                Start with one win
               </p>
-              <h2 className="section-title text-[#f7f1e8]">
-                The evidence is strongest now, not at review time.
+              <h2 className="section-title tracking-normal text-[#fff7ed]">
+                You already did the work. Capture the proof before it gets diluted.
               </h2>
-              <p className="max-w-2xl text-base leading-7 text-[#cfbea9]">
-                Open BragBook, capture one recent win, and leave with material
-                you can reuse in the next review, promotion conversation, or
-                interview loop.
+              <p className="max-w-2xl text-base leading-7 text-[#cdbda9]">
+                Open BragBook, save one accomplishment that could matter in a
+                review, promotion conversation, resume update, or interview loop.
               </p>
             </div>
 
             <div className="space-y-4">
-              <Link href="/dashboard" className={marketingButtonStyles("primary")}>
-                Open the app
+              <Link
+                href="/dashboard"
+                className={marketingButtonStyles(
+                  "primary",
+                  "bg-[#fff7ed] text-[#15110e] hover:bg-white focus-visible:ring-white/30",
+                )}
+              >
+                Open BragBook
               </Link>
               <Link
                 href="/settings"
-                className="block text-sm font-semibold text-[#cfbea9] underline-offset-4 transition hover:text-[#f7f1e8] hover:underline"
+                className="block text-sm font-semibold text-[#cdbda9] underline-offset-4 transition hover:text-[#fff7ed] hover:underline"
               >
                 Review privacy and backup controls
               </Link>

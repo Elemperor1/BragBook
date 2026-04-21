@@ -19,24 +19,24 @@ describe("LandingPage", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Keep the proof behind the work that should advance your career.",
+        name: "Turn your best work into career leverage.",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Proof to draft examples")).toBeInTheDocument();
+    expect(screen.getByText("Proof to output examples")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: "One evidence packet can become four serious career assets.",
+        name: "One evidence packet can become every career document you need next.",
       }),
     ).toBeInTheDocument();
     expect(screen.getAllByText("Promotion packet").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Self-review").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Resume bullets").length).toBeGreaterThan(0);
     expect(screen.getAllByText("STAR interview stories").length).toBeGreaterThan(0);
-    expect(screen.getByText("Stored in this browser")).toBeInTheDocument();
-    expect(screen.getAllByText(/JSON backup/).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("link", { name: "Open the app" })).toHaveLength(2);
+    expect(screen.getByText("This browser")).toBeInTheDocument();
+    expect(screen.getByText("Your JSON file")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Open BragBook" })).toHaveLength(2);
     expect(
-      screen.getByRole("link", { name: "See proof-to-draft examples" }),
+      screen.getByRole("link", { name: "See proof-to-output examples" }),
     ).toBeInTheDocument();
   });
 });
