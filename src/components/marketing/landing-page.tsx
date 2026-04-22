@@ -75,6 +75,8 @@ type ExampleOutput = {
   usedFor: string;
   documentLabel: string;
   excerpt: string;
+  previewTitle: string;
+  previewLines: readonly string[];
 };
 
 const heroEntry = demoEntries.find((entry) => entry.id === "demo-ci-lane") ?? demoEntries[0];
@@ -166,6 +168,12 @@ function buildExampleOutputs() {
       usedFor: "Staff Engineer case",
       documentLabel: "Leadership narrative",
       excerpt: takeDocumentExcerpt(promotionPacket, 10),
+      previewTitle: "Case for Staff Engineer",
+      previewLines: [
+        "This body of work shows sustained impact across delivery, influence, and communication.",
+        "CI failure rate dropped from 18% to 3%, service ownership was clarified across 27 services, and support diagnostics cut triage time from 2.4 days to 6 hours.",
+        "The packet frames the work as proof of broader scope, repeatable execution, and cross-functional leverage.",
+      ],
     },
     {
       label: "Self-review",
@@ -173,6 +181,11 @@ function buildExampleOutputs() {
       usedFor: "Manager-ready draft",
       documentLabel: "Review summary",
       excerpt: takeDocumentExcerpt(selfReview, 6),
+      previewTitle: "Self-review",
+      previewLines: [
+        "This period shows repeated delivery across Developer Platform and Architecture Modernization.",
+        "The strongest themes were reliability, migration ownership, and cross-functional execution.",
+      ],
     },
     {
       label: "Resume bullets",
@@ -180,6 +193,11 @@ function buildExampleOutputs() {
       usedFor: "External story",
       documentLabel: "Resume-ready bullets",
       excerpt: takeDocumentExcerpt(resumeBullets, 5),
+      previewTitle: "Resume bullets",
+      previewLines: [
+        "Reduced main-branch CI failure rate from 18% to 3% by isolating flaky jobs, splitting cache keys, and adding drift alerts.",
+        "Created a service ownership workbook that assigned durable ownership for 27 services across 5 teams.",
+      ],
     },
     {
       label: "STAR interview stories",
@@ -187,6 +205,12 @@ function buildExampleOutputs() {
       usedFor: "Prepared answers",
       documentLabel: "Structured examples",
       excerpt: takeDocumentExcerpt(starStories, 6),
+      previewTitle: "STAR interview stories",
+      previewLines: [
+        "Situation: Customer-facing issues arrived without enough diagnostic context.",
+        "Action: Partnered with support, added request IDs, and shipped a focused internal triage panel.",
+        "Result: Median time-to-triage fell from 2.4 days to 6 hours.",
+      ],
     },
   ] as const satisfies readonly ExampleOutput[];
 }
@@ -247,16 +271,29 @@ function DocumentPreview({
           <span>{output.documentLabel}</span>
         </div>
         <div className="mt-4 h-px bg-border/75" />
-        <pre
-          className={cn(
-            "mt-4 whitespace-pre-wrap font-sans text-[#2d241b]",
-            featured
-              ? "document-prose max-h-[19.5rem] overflow-hidden"
-              : "max-h-[9.5rem] overflow-hidden text-[0.92rem] leading-7",
-          )}
-        >
-          {output.excerpt}
-        </pre>
+        <div className={cn("mt-4 space-y-4 text-[#2d241b]", featured ? "" : "space-y-3")}>
+          <p
+            className={cn(
+              "font-display leading-[1.08] tracking-normal",
+              featured ? "text-[1.6rem]" : "text-[1.22rem]",
+            )}
+          >
+            {output.previewTitle}
+          </p>
+          <div className={cn(featured ? "space-y-4" : "space-y-3")}>
+            {output.previewLines.map((line) => (
+              <p
+                key={line}
+                className={cn(
+                  "text-[#3a3027]",
+                  featured ? "text-[1rem] leading-8" : "text-[0.92rem] leading-7",
+                )}
+              >
+                {line}
+              </p>
+            ))}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
