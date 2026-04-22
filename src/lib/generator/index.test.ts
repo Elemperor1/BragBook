@@ -1,4 +1,5 @@
 import { generateOutput } from "@/lib/generator";
+import type { AccomplishmentEntry } from "@/lib/schemas/entry";
 import { demoEntries } from "@/test/fixtures/entries";
 
 describe("generator output", () => {
@@ -109,5 +110,105 @@ describe("generator output", () => {
       "The selected entries need stronger artifact or quote capture before this section is persuasive.",
     );
     expect(weakPromotion).not.toContain("18% to 3%");
+  });
+
+  it("groups promotion evidence by globally ranked impact signals", () => {
+    const entries: AccomplishmentEntry[] = [
+      {
+        id: "alpha",
+        title: "Alpha",
+        startDate: "2026-04-01",
+        endDate: "2026-04-01",
+        project: null,
+        situation: null,
+        action: "Improved alpha flow",
+        result: "Alpha shipped",
+        metric: "Latency down 40%",
+        stakeholders: [],
+        proofItems: [
+          {
+            id: "proof-alpha",
+            type: "artifactLink",
+            title: null,
+            summary: null,
+            link: "https://example.com/alpha",
+            metric: null,
+            localImage: null,
+          },
+        ],
+        tags: ["common", "rare"],
+        seniorityTags: [],
+        roleTags: [],
+        createdAt: "2026-04-01T00:00:00.000Z",
+        updatedAt: "2026-04-01T00:00:00.000Z",
+      },
+      {
+        id: "beta",
+        title: "Beta",
+        startDate: "2026-04-02",
+        endDate: "2026-04-02",
+        project: null,
+        situation: null,
+        action: "Improved beta flow",
+        result: "Beta shipped",
+        metric: "Errors down 30%",
+        stakeholders: [],
+        proofItems: [
+          {
+            id: "proof-beta",
+            type: "artifactLink",
+            title: null,
+            summary: null,
+            link: "https://example.com/beta",
+            metric: null,
+            localImage: null,
+          },
+        ],
+        tags: ["common"],
+        seniorityTags: [],
+        roleTags: [],
+        createdAt: "2026-04-02T00:00:00.000Z",
+        updatedAt: "2026-04-02T00:00:00.000Z",
+      },
+      {
+        id: "gamma",
+        title: "Gamma",
+        startDate: "2026-04-03",
+        endDate: "2026-04-03",
+        project: null,
+        situation: null,
+        action: "Improved gamma flow",
+        result: "Gamma shipped",
+        metric: "Throughput up 20%",
+        stakeholders: [],
+        proofItems: [
+          {
+            id: "proof-gamma",
+            type: "artifactLink",
+            title: null,
+            summary: null,
+            link: "https://example.com/gamma",
+            metric: null,
+            localImage: null,
+          },
+        ],
+        tags: ["common"],
+        seniorityTags: [],
+        roleTags: [],
+        createdAt: "2026-04-03T00:00:00.000Z",
+        updatedAt: "2026-04-03T00:00:00.000Z",
+      },
+    ];
+
+    const output = generateOutput({
+      entries,
+      outputType: "promotionCase",
+      tone: "concise",
+      targetLevel: "Staff Engineer",
+      variantIndex: 0,
+    });
+
+    expect(output).toContain("\nCommon\n");
+    expect(output).not.toContain("\nRare\n");
   });
 });

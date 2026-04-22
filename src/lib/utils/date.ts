@@ -13,12 +13,29 @@ const relativeFormatter = new Intl.RelativeTimeFormat("en-US", {
   numeric: "auto",
 });
 
+const dateOnlyPattern = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+export function parseDateValue(date: string | Date) {
+  if (date instanceof Date) {
+    return date;
+  }
+
+  const dateOnlyMatch = dateOnlyPattern.exec(date);
+
+  if (!dateOnlyMatch) {
+    return new Date(date);
+  }
+
+  const [, year, month, day] = dateOnlyMatch;
+  return new Date(Number(year), Number(month) - 1, Number(day));
+}
+
 export function formatDate(date: string | null | undefined) {
   if (!date) {
     return "Not set";
   }
 
-  return dateFormatter.format(new Date(date));
+  return dateFormatter.format(parseDateValue(date));
 }
 
 export function formatCompactDate(date: string | null | undefined) {
@@ -26,7 +43,7 @@ export function formatCompactDate(date: string | null | undefined) {
     return "Open-ended";
   }
 
-  return monthYearFormatter.format(new Date(date));
+  return monthYearFormatter.format(parseDateValue(date));
 }
 
 export function formatDateRange(
@@ -53,7 +70,7 @@ export function formatRelativeTime(date: string | null | undefined) {
     return "No recent activity";
   }
 
-  const deltaInMs = new Date(date).getTime() - Date.now();
+  const deltaInMs = parseDateValue(date).getTime() - Date.now();
   const deltaInMinutes = Math.round(deltaInMs / (1000 * 60));
 
   if (Math.abs(deltaInMinutes) < 60) {
@@ -70,7 +87,7 @@ export function formatRelativeTime(date: string | null | undefined) {
     return relativeFormatter.format(deltaInDays, "day");
   }
 
-  return dateFormatter.format(new Date(date));
+  return dateFormatter.format(parseDateValue(date));
 }
 
 export function getQuarterStart(date = new Date()) {
@@ -85,11 +102,11 @@ export function getQuarterNumber(date = new Date()) {
 }
 
 export function getQuarterSortKey(date: string | Date) {
-  const resolvedDate = typeof date === "string" ? new Date(date) : date;
+  const resolvedDate = parseDateValue(date);
   return `${resolvedDate.getFullYear()}-Q${getQuarterNumber(resolvedDate)}`;
 }
 
 export function getQuarterLabel(date: string | Date) {
-  const resolvedDate = typeof date === "string" ? new Date(date) : date;
+  const resolvedDate = parseDateValue(date);
   return `Q${getQuarterNumber(resolvedDate)} ${resolvedDate.getFullYear()}`;
 }
