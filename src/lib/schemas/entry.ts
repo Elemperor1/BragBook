@@ -50,7 +50,20 @@ const optionalDate = z.preprocess(
     const trimmed = value.trim();
     return trimmed.length === 0 ? null : trimmed;
   },
-  z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
+  z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .refine((date) => {
+      const [year, month, day] = date.split("-").map(Number);
+      const candidate = new Date(year, month - 1, day);
+
+      return (
+        candidate.getFullYear() === year &&
+        candidate.getMonth() === month - 1 &&
+        candidate.getDate() === day
+      );
+    }, "Date must be a real calendar date")
+    .nullable(),
 );
 
 const optionalUrl = z.preprocess(
@@ -248,10 +261,7 @@ export const accomplishmentEntryInputSchema = z
   })
   .superRefine((entry, context) => {
     if (entry.startDate && entry.endDate) {
-      const start = new Date(entry.startDate);
-      const end = new Date(entry.endDate);
-
-      if (end < start) {
+      if (entry.endDate < entry.startDate) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["endDate"],

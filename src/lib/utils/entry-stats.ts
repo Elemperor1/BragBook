@@ -2,7 +2,12 @@ import type {
   AccomplishmentEntry,
   ProofStrength,
 } from "@/lib/schemas/entry";
-import { getQuarterLabel, getQuarterSortKey, getQuarterStart } from "@/lib/utils/date";
+import {
+  getQuarterLabel,
+  getQuarterSortKey,
+  getQuarterStart,
+  parseDateValue,
+} from "@/lib/utils/date";
 import { getProofStrength } from "@/lib/utils/proof";
 import { sortStrongestEntries } from "@/lib/utils/entry-search";
 
@@ -60,7 +65,7 @@ export function buildDashboardStats(
 
   const entriesThisQuarter = entries.filter((entry) => {
     const referenceDate = entry.endDate ?? entry.startDate ?? entry.createdAt;
-    return new Date(referenceDate) >= quarterStart;
+    return parseDateValue(referenceDate) >= quarterStart;
   }).length;
 
   return {

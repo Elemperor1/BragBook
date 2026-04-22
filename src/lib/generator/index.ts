@@ -565,12 +565,27 @@ function buildPromotionGroups(facts: EntryFact[], variantIndex: number) {
         : right[1] - left[1],
     )
     .map(([label]) => label);
+  const preferredSignalRank = new Map(
+    preferredSignals.map((signal, index) => [signal, index] as const),
+  );
 
   const groups = new Map<string, EntryFact[]>();
 
   for (const fact of facts) {
+    const rankedSignal = getImpactAreaSignals(fact).reduce<string | null>(
+      (best, signal) => {
+        if (best === null) {
+          return signal;
+        }
+
+        const bestRank = preferredSignalRank.get(best) ?? Number.POSITIVE_INFINITY;
+        const signalRank = preferredSignalRank.get(signal) ?? Number.POSITIVE_INFINITY;
+        return signalRank < bestRank ? signal : best;
+      },
+      null,
+    );
     const signal =
-      getImpactAreaSignals(fact).find((item) => preferredSignals.includes(item)) ??
+      rankedSignal ??
       fact.project ??
       fact.tags[0] ??
       fact.seniorityTags[0] ??

@@ -174,4 +174,14 @@ describe("accomplishmentEntryInputSchema", () => {
       }),
     ).toThrow("End date cannot be earlier than start date");
   });
+
+  it("rejects impossible calendar dates", () => {
+    expect(() =>
+      accomplishmentEntryInputSchema.parse({
+        ...emptyEntryInput,
+        title: "Captured a win",
+        startDate: "2026-02-31",
+      }),
+    ).toThrow("Date must be a real calendar date");
+  });
 });
